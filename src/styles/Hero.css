@@ -1,0 +1,52 @@
+.hero {
+  height: 260px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 40px 28px 0;
+  position: relative;
+}
+.logoWord {
+  margin: 0;
+  font-weight: 800;
+  letter-spacing: -0.06em;
+  font-size: clamp(84px, 16vw, 220px);
+  line-height: 0.9;
+}
+.heroRight {
+  padding-top: 28px;
+  max-width: 360px;
+}
+.headline {
+  margin: 0 0 18px;
+  font-size: 30px;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+}
+.ghost {
+  color: rgba(0, 0, 0, 0.25);
+}
+
+.cta {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 16px 10px 10px;
+  background: #111;
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.18);
+  cursor: pointer;
+}
+.avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #f7c600;
+  display: inline-block;
+}
+.ctaText {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+}

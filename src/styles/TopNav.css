@@ -1,0 +1,29 @@
+/* Top navigation bar */
+.topnav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 왼쪽/오른쪽 블록을 양 끝으로 배치 */
+  width: 100%;
+}
+
+.topnav .left,
+.topnav .right {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.navItem {
+  font-size: 14px;
+}
+
+.navBtn {
+  font-size: 14px;
+}
+
+.dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: currentColor;
+}

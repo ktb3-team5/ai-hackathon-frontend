@@ -1,0 +1,550 @@
+.flim-app {
+  min-height: 100vh;
+  background: radial-gradient(circle at top left, #1b1b24 0, #050509 45%, #020206 100%);
+  color: #f7f7ff;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+  padding: 16px 32px 40px;
+  box-sizing: border-box;
+}
+
+.theme-strip {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 6px 14px;
+  margin: 0 auto 12px;
+  max-width: 520px;
+  background: rgba(7, 7, 16, 0.9);
+  backdrop-filter: blur(16px);
+}
+
+.theme-list {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.theme-list span {
+  opacity: 0.8;
+}
+
+.theme-strip-toggle {
+  border-radius: 999px;
+  border: none;
+  padding: 4px 10px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  background: #161620;
+  color: #f7f7ff;
+  cursor: pointer;
+}
+
+.flim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 4px 20px;
+}
+
+.flim-logo {
+  font-size: 20px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.flim-nav {
+  display: flex;
+  gap: 24px;
+  font-size: 14px;
+}
+
+.flim-nav a {
+  color: rgba(255, 255, 255, 0.84);
+  text-decoration: none;
+}
+
+.flim-nav a:hover {
+  color: #ffffff;
+}
+
+.flim-auth {
+  display: flex;
+  gap: 10px;
+}
+
+.btn {
+  border-radius: 999px;
+  border: 1px solid transparent;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  background: transparent;
+  color: #f7f7ff;
+  transition: background 0.18s ease, color 0.18s ease, border-color 0.18s ease,
+    box-shadow 0.18s ease, transform 0.12s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.btn.primary {
+  background: linear-gradient(135deg, #f97316, #ec4899, #6366f1);
+  border-color: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.6);
+}
+
+.btn.primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.8);
+}
+
+.btn.ghost {
+  border-color: rgba(255, 255, 255, 0.24);
+  background: rgba(9, 9, 17, 0.7);
+}
+
+.btn.ghost:hover {
+  background: rgba(22, 22, 34, 0.9);
+}
+
+.btn.outline {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: transparent;
+}
+
+.btn.large {
+  padding: 10px 22px;
+  font-size: 13px;
+}
+
+.btn.small {
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+.flim-main {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 10px 0 40px;
+}
+
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.3fr);
+  gap: 40px;
+  align-items: center;
+  margin-bottom: 64px;
+}
+
+.hero-text h1 {
+  font-size: clamp(34px, 4vw, 46px);
+  line-height: 1.1;
+  margin: 14px 0 18px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: rgba(5, 5, 14, 0.8);
+  padding: 4px 12px;
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.gradient-text {
+  background: linear-gradient(135deg, #f97316, #ec4899, #6366f1);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.hero-search {
+  display: flex;
+  justify-content: center;
+}
+
+.search-card {
+  position: relative;
+  width: 100%;
+  max-width: 320px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: radial-gradient(circle at top, rgba(148, 163, 253, 0.18), transparent 55%),
+    rgba(3, 3, 12, 0.95);
+  padding: 16px 16px 18px;
+  box-shadow:
+    0 18px 50px rgba(0, 0, 0, 0.9),
+    0 0 0 1px rgba(15, 23, 42, 0.8);
+}
+
+.search-label {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.62);
+  margin-bottom: 10px;
+}
+
+.search-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 253, 0.5);
+  background: radial-gradient(circle at top left, rgba(79, 70, 229, 0.6), rgba(15, 23, 42, 0.98));
+  padding: 10px 14px;
+}
+
+.search-placeholder {
+  font-size: 13px;
+  color: rgba(248, 250, 252, 0.86);
+}
+
+.search-shortcut {
+  font-size: 11px;
+  padding: 4px 7px;
+  border-radius: 6px;
+  border: 1px solid rgba(148, 163, 253, 0.8);
+  background: rgba(15, 23, 42, 0.9);
+}
+
+.search-glow {
+  position: absolute;
+  inset: auto 16px -14px;
+  height: 20px;
+  border-radius: 999px;
+  background: radial-gradient(circle at center, rgba(129, 140, 248, 0.9), transparent 70%);
+  opacity: 0.6;
+  filter: blur(8px);
+}
+
+.brands-section {
+  margin-bottom: 56px;
+}
+
+.brands-section h2 {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(248, 250, 252, 0.72);
+  margin-bottom: 18px;
+}
+
+.brands-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 10px 24px;
+  font-size: 12px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.brands-grid span {
+  opacity: 0.9;
+}
+
+.database-section {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1.6fr);
+  gap: 32px;
+  align-items: flex-start;
+  margin-bottom: 60px;
+}
+
+.database-copy h3 {
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(148, 163, 253, 0.9);
+  margin-bottom: 10px;
+}
+
+.database-copy h2 {
+  font-size: 26px;
+  margin-bottom: 12px;
+}
+
+.database-copy p {
+  font-size: 14px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.metric-card {
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.38), transparent 55%),
+    rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(148, 163, 253, 0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.metric-value {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.metric-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: rgba(209, 213, 219, 0.8);
+}
+
+.platform-section {
+  margin-bottom: 54px;
+}
+
+.platform-header .section-kicker {
+  display: inline-block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(148, 163, 253, 0.9);
+  margin-bottom: 10px;
+}
+
+.platform-header h2 {
+  font-size: 26px;
+  margin-bottom: 10px;
+}
+
+.platform-header p {
+  font-size: 14px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.section-kicker {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(148, 163, 253, 0.9);
+}
+
+.tools-section {
+  margin-bottom: 56px;
+}
+
+.tools-header h2 {
+  font-size: 24px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.tools-header p {
+  font-size: 14px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.tools-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.tool-card {
+  border-radius: 18px;
+  padding: 16px 16px 14px;
+  background: radial-gradient(circle at top left, rgba(251, 113, 133, 0.25), transparent 55%),
+    rgba(24, 24, 37, 0.96);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+}
+
+.tool-card h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.tool-card p {
+  font-size: 13px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.workflow-section {
+  margin-bottom: 56px;
+}
+
+.workflow-header h2 {
+  font-size: 24px;
+  margin-top: 6px;
+  margin-bottom: 6px;
+}
+
+.workflow-header p {
+  font-size: 14px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.workflow-card {
+  border-radius: 18px;
+  padding: 16px 16px 14px;
+  background: radial-gradient(circle at top left, rgba(129, 140, 248, 0.3), transparent 55%),
+    rgba(15, 23, 42, 0.96);
+  border: 1px solid rgba(129, 140, 248, 0.45);
+}
+
+.workflow-card h3 {
+  font-size: 16px;
+  margin-bottom: 6px;
+}
+
+.workflow-card p {
+  font-size: 13px;
+  color: rgba(209, 213, 219, 0.9);
+}
+
+.flim-footer {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-top: 32px;
+  border-top: 1px solid rgba(30, 64, 175, 0.6);
+}
+
+.footer-top {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.footer-brand {
+  font-size: 18px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.footer-columns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+.footer-column h4 {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  margin-bottom: 8px;
+  color: rgba(209, 213, 219, 0.95);
+}
+
+.footer-column a,
+.footer-column p {
+  display: block;
+  font-size: 13px;
+  color: rgba(148, 163, 184, 0.95);
+  text-decoration: none;
+  margin-bottom: 4px;
+}
+
+.footer-column a:hover {
+  color: rgba(226, 232, 240, 1);
+}
+
+.newsletter-input {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.newsletter-input input {
+  flex: 1;
+  border-radius: 999px;
+  border: 1px solid rgba(148, 163, 184, 0.7);
+  background: rgba(15, 23, 42, 0.9);
+  color: #e5e7eb;
+  padding: 6px 10px;
+  font-size: 12px;
+}
+
+.newsletter-input input::placeholder {
+  color: rgba(148, 163, 184, 0.9);
+}
+
+.footer-bottom {
+  font-size: 11px;
+  color: rgba(148, 163, 184, 0.9);
+}
+
+@media (max-width: 900px) {
+  .flim-app {
+    padding-inline: 18px;
+  }
+
+  .flim-header {
+    gap: 12px;
+  }
+
+  .flim-nav {
+    display: none;
+  }
+
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .hero-search {
+    order: -1;
+  }
+}
+
+@media (max-width: 640px) {
+  .theme-strip {
+    display: none;
+  }
+
+  .flim-header {
+    padding-top: 4px;
+  }
+
+  .database-section {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer-top {
+    flex-direction: column;
+  }
+
+  .footer-columns {
+    flex-direction: column;
+  }
+}

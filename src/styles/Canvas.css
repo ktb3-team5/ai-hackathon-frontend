@@ -1,0 +1,42 @@
+.canvas {
+  height: calc(100vh - 64px - 260px);
+  min-height: 520px;
+  position: relative;
+  overflow: hidden;
+
+  /* 스샷처럼 옅은 그리드 */
+  background-image: linear-gradient(to right, var(--line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--line) 1px, transparent 1px);
+  background-size: 28px 28px;
+  border-top: 1px solid rgba(0, 0, 0, 0.04);
+}
+
+/* 카드 배치(스크린샷 느낌으로 대충 잡아둔 값 → 너가 맞추면 1:1 가능) */
+.c1 {
+  left: 40px;
+  top: 120px;
+}
+.c2 {
+  left: 340px;
+  top: 40px;
+}
+.c3 {
+  left: 520px;
+  top: 120px;
+}
+.c4 {
+  left: 700px;
+  top: 70px;
+}
+.c5 {
+  right: 220px;
+  top: 120px;
+}
+.c6 {
+  left: 120px;
+  bottom: 90px;
+}
+.c7 {
+  right: 120px;
+  bottom: 60px;
+}
