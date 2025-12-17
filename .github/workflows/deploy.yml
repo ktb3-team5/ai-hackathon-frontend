@@ -1,0 +1,75 @@
+# ============================================
+# ai-hackathon-frontend CI/CD Pipeline
+# React + Vite + Nginx + EC2
+# ============================================
+#
+# 📌 필수 GitHub Secrets:
+#   - EC2_HOST      : 프론트엔드 EC2 퍼블릭 IP
+#   - EC2_USER      : ubuntu
+#   - EC2_SSH_KEY   : .pem 파일 내용 전체
+#   - BACKEND_IP    : 백엔드 EC2 IP (API 프록시용)
+# ============================================
+
+name: Frontend CI/CD
+
+on:
+  push:
+    branches: [feat/cicd]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to EC2
+        uses: appleboy/ssh-action@v1.0.3
+        env:
+          BACKEND_IP: ${{ secrets.BACKEND_IP }}
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          envs: BACKEND_IP
+          script: |
+            set -e
+
+            echo "===== 1. 프로젝트 클론/업데이트 ====="
+            APP_DIR="/home/ubuntu/ai-hackathon-frontend"
+            REPO_URL="https://github.com/ktb3-team5/ai-hackathon-frontend.git"
+            BRANCH="feat/cicd"
+
+            if [ ! -d "$APP_DIR" ]; then
+              git clone -b $BRANCH $REPO_URL $APP_DIR
+            fi
+
+            cd $APP_DIR
+            git fetch origin
+            git checkout $BRANCH
+            git reset --hard origin/$BRANCH
+
+            echo "===== 2. nginx.conf 백엔드 IP 설정 ====="
+            # BACKEND_IP 플레이스홀더를 실제 IP로 교체
+            sed -i "s/BACKEND_IP/$BACKEND_IP/g" nginx.conf
+
+            echo "===== 3. Docker 이미지 빌드 ====="
+            docker build -t frontend:latest .
+
+            echo "===== 4. 기존 컨테이너 정리 ====="
+            docker stop frontend || true
+            docker rm frontend || true
+
+            echo "===== 5. 새 컨테이너 실행 ====="
+            docker run -d \
+              --name frontend \
+              --restart unless-stopped \
+              -p 80:80 \
+              frontend:latest
+
+            echo "===== 6. nginx.conf 원복 (다음 배포를 위해) ====="
+            git checkout nginx.conf
+
+            echo "===== 7. 정리 ====="
+            docker image prune -af
+
+            echo "===== 배포 완료! ====="
+            docker ps | grep frontend

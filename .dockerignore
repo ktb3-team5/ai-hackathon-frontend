@@ -1,0 +1,31 @@
+# ============================================
+# Docker 빌드 시 제외할 파일/폴더
+# ============================================
+
+# 의존성 (컨테이너에서 새로 설치)
+node_modules
+
+# 빌드 결과물 (컨테이너에서 새로 빌드)
+dist
+
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+.vscode
+*.swp
+
+# 환경 파일
+.env
+.env.local
+.env.*.local
+
+# 로그
+*.log
+npm-debug.log*
+
+# 문서
+*.md
+LICENSE
