@@ -1,7 +1,4 @@
-import { useState } from "react";
 import "../styles/KoreanCarousel.css";
-import RestaurantModal from "./RestaurantModal";
-import { RESTAURANT_DATA } from "../data/restaurants";
 
 // 개인화된 콘텐츠 (A 루트 - 설문 참여)
 const PERSONALIZED_VIDEOS = [
@@ -42,7 +39,7 @@ const PERSONALIZED_VIDEOS = [
   },
 ];
 
-// 대중적 콘텐츠 (B 루트 - 설문 건너뛰기)
+// 대중적 콘텐츠 (B 루트 - 설문 건너뛰기 & 설문 마지막 단계 TOP10)
 const POPULAR_VIDEOS = [
   {
     id: 1,
@@ -115,14 +112,18 @@ const POPULAR_VIDEOS = [
   },
 ];
 
-export default function KoreanCarousel({ isPersonalized, userPreferences }) {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+export default function KoreanCarousel({
+  isPersonalized,
+  userPreferences,
+  onSelectContent,
+  variant = "default", // "default" | "survey"
+  selectedContent,
+}) {
   const videos = isPersonalized ? PERSONALIZED_VIDEOS : POPULAR_VIDEOS;
 
   const handleCardClick = (video) => {
-    // "흑백요리사" 카드를 클릭했을 때만 모달 열기
-    if (video.title === "흑백요리사") {
-      setIsModalOpen(true);
+    if (onSelectContent) {
+      onSelectContent(video);
     }
   };
 
@@ -146,29 +147,37 @@ export default function KoreanCarousel({ isPersonalized, userPreferences }) {
   const { title, subtitle } = getHeaderContent();
 
   return (
-    <section className="k-carousel">
-      <div className="k-carousel-header">
-        <h2>{title}</h2>
-        <p>{subtitle}</p>
-        {isPersonalized &&
-          userPreferences?.genres &&
-          userPreferences.genres.length > 0 && (
-            <div className="preference-tags">
-              {userPreferences.genres.slice(0, 3).map((genre) => (
-                <span key={genre} className="preference-tag">
-                  #{genre}
-                </span>
-              ))}
-            </div>
-          )}
-      </div>
+    <section
+      className={`k-carousel ${
+        variant === "survey" ? "k-carousel--survey" : ""
+      }`}
+    >
+      {variant !== "survey" && (
+        <div className="k-carousel-header">
+          <h2>{title}</h2>
+          <p>{subtitle}</p>
+          {isPersonalized &&
+            userPreferences?.genres &&
+            userPreferences.genres.length > 0 && (
+              <div className="preference-tags">
+                {userPreferences.genres.slice(0, 3).map((genre) => (
+                  <span key={genre} className="preference-tag">
+                    #{genre}
+                  </span>
+                ))}
+              </div>
+            )}
+        </div>
+      )}
 
       <div className="k-carousel-track-wrapper">
         <div className="k-carousel-track">
           {videos.map((video) => (
             <article
               key={video.id}
-              className="k-video-card"
+              className={`k-video-card ${
+                selectedContent?.id === video.id ? "k-video-card--selected" : ""
+              }`}
               onClick={() => handleCardClick(video)}
             >
               <div className="k-video-thumb">
@@ -183,12 +192,6 @@ export default function KoreanCarousel({ isPersonalized, userPreferences }) {
           ))}
         </div>
       </div>
-
-      <RestaurantModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        restaurants={RESTAURANT_DATA}
-      />
     </section>
   );
 }

@@ -4,6 +4,12 @@
   min-height: 100vh;
 }
 
+.k-carousel--survey {
+  padding: 16px 0 0;
+  border-top: none;
+  min-height: auto;
+}
+
 .k-carousel-header {
   max-width: 1200px;
   margin: 0 auto 40px;
@@ -66,6 +72,11 @@
   padding: 0 48px;
 }
 
+.k-carousel--survey .k-carousel-track {
+  padding: 0;
+  gap: 16px;
+}
+
 .k-video-card {
   width: 320px;
   flex: 0 0 auto;
@@ -77,6 +88,11 @@
   cursor: pointer;
   transition: transform 0.18s ease, box-shadow 0.18s ease,
     border-color 0.18s ease;
+}
+
+.k-carousel--survey .k-video-card {
+  width: 260px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.12);
 }
 
 .k-video-card:hover {
@@ -147,6 +163,11 @@
 
 .k-video-card:hover .k-video-title {
   color: var(--accent);
+}
+
+.k-video-card--selected {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(11, 174, 255, 0.4);
 }
 
 @media (max-width: 768px) {

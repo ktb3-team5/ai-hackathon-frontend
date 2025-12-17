@@ -2,14 +2,27 @@ import { useMemo } from "react";
 import "../styles/FloatingCard.css";
 
 // 각 카드에 매칭될 이미지
-const CARD_IMAGES = {
-  c1: "/images/image.png",
-  c2: "/images/image2.png",
-  c3: "/images/image3.png",
-  c4: "/images/image4.png",
-  c5: "/images/image5.png",
-  c6: "/images/image6.png",
-  c7: "/images/image7.png",
+const TOP_IMAGES = [
+  "/images/top1.png",
+  "/images/top2.png",
+  "/images/top3.png",
+  "/images/top4.png",
+  "/images/top5.png",
+  "/images/top6.png",
+  "/images/top7.png",
+  "/images/top8.png",
+  "/images/top9.png",
+  "/images/top10.png",
+];
+
+const CARD_IMAGE_POOLS = {
+  c1: ["/images/image.png"],
+  c2: ["/images/image2.png"],
+  c3: ["/images/image3.png"],
+  c4: ["/images/image4.png"],
+  c5: ["/images/image5.png"],
+  c6: ["/images/image6.png"],
+  c7: ["/images/image7.png"],
 };
 
 // 각 카드 슬롯별 기본 사이즈 (기존 CSS 값)
@@ -69,6 +82,13 @@ function getVariant(id, frameIndex) {
   };
 }
 
+function pickImage(id, frameIndex) {
+  const pool = [...(CARD_IMAGE_POOLS[id] || []), ...TOP_IMAGES];
+  if (pool.length === 0) return undefined;
+  const index = Math.floor(rand01(id, frameIndex, 99) * pool.length);
+  return pool[index];
+}
+
 export default function FloatingCard({
   id,
   className = "",
@@ -76,13 +96,12 @@ export default function FloatingCard({
   isVisible = true,
 }) {
   const variant = useMemo(() => getVariant(id, frameIndex), [id, frameIndex]);
+  const imageUrl = useMemo(() => pickImage(id, frameIndex), [id, frameIndex]);
 
   const offset = ID_OFFSET[id] ?? 0;
   const maxOffset = 6; // c1~c7 기준
   const hideDelayMs = offset * 150; // 하나씩 0.15초 간격으로 사라짐
   const showDelayMs = (maxOffset - offset) * 150; // 반대 순서로 나타나게
-
-  const imageUrl = CARD_IMAGES[id];
 
   return (
     <div

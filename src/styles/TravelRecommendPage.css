@@ -1,0 +1,267 @@
+.travel-page {
+  padding: 40px 48px 80px;
+}
+
+.travel-header {
+  max-width: 1152px;
+  margin: 0 auto 40px;
+}
+
+.travel-back-btn {
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-size: 14px;
+  cursor: pointer;
+  margin-bottom: 12px;
+}
+
+.travel-label {
+  font-size: 13px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.travel-title {
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin: 0 0 12px;
+}
+
+.travel-title-main {
+  color: var(--accent);
+}
+
+.travel-meta {
+  font-size: 14px;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.travel-desc {
+  font-size: 15px;
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 12px;
+}
+
+.travel-theme-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(11, 174, 255, 0.06);
+  border: 1px solid rgba(11, 174, 255, 0.18);
+  font-size: 13px;
+  color: #0369a1;
+  margin-bottom: 16px;
+}
+
+.badge-label {
+  font-weight: 600;
+}
+
+.badge-text {
+  font-weight: 500;
+}
+
+.travel-restaurant-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  padding: 10px 16px;
+  border-radius: 999px;
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.travel-section {
+  max-width: 1152px;
+  margin: 0 auto 40px;
+}
+
+.section-title {
+  font-size: 22px;
+  font-weight: 700;
+  margin: 0 0 6px;
+}
+
+.section-subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 16px;
+}
+
+.card-row {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding-bottom: 10px;
+}
+
+.stay-card {
+  flex: 0 0 360px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.16);
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.stay-card-thumb {
+  position: relative;
+  height: 230px;
+  overflow: hidden;
+}
+
+.stay-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.stay-tag-row {
+  position: absolute;
+  left: 12px;
+  top: 12px;
+}
+
+.stay-chip {
+  font-size: 11px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.72);
+  color: #f9fafb;
+}
+
+.stay-card-body {
+  padding: 14px 16px 16px;
+}
+
+.stay-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.stay-place {
+  font-size: 14px;
+  color: #111827;
+  margin: 0 0 2px;
+}
+
+.stay-meta {
+  font-size: 12px;
+  color: #6b7280;
+  margin: 0 0 8px;
+}
+
+.stay-price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.stay-discount {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0ea5e9;
+}
+
+.stay-price {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.stay-price-unit {
+  font-size: 12px;
+  margin-left: 1px;
+}
+
+.stay-original {
+  font-size: 12px;
+  color: #9ca3af;
+  text-decoration: line-through;
+}
+
+.restaurant-card {
+  flex: 0 0 320px;
+  border-radius: 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #fff;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 14px 16px 16px;
+}
+
+.restaurant-card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.restaurant-chip {
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.restaurant-name {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 4px;
+}
+
+.restaurant-location {
+  font-size: 13px;
+  color: #4b5563;
+  margin: 0 0 10px;
+}
+
+.restaurant-map-btn {
+  font-size: 13px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: #f9fafb;
+  cursor: pointer;
+}
+.restaurant-thumb {
+  width: 100%;
+  height: 180px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+
+.restaurant-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@media (max-width: 768px) {
+  .travel-page {
+    padding: 24px 18px 40px;
+  }
+
+  .travel-title {
+    font-size: 22px;
+  }
+
+  .card-row {
+    gap: 12px;
+  }
+}

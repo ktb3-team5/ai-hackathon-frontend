@@ -1,34 +1,67 @@
 import { useState } from "react";
 import "../styles/PreferencesSurvey.css";
+import KoreanCarousel from "./KoreanCarousel";
 
 const BIRTH_YEARS = Array.from({ length: 60 }, (_, i) => 2010 - i);
 
 const GENRES = [
-  { id: "drama", label: "드라마", emoji: "🎭" },
-  { id: "variety", label: "예능", emoji: "🎪" },
-  { id: "movie", label: "영화", emoji: "🎬" },
-  { id: "music", label: "음악/공연", emoji: "🎵" },
-  { id: "vlog", label: "브이로그", emoji: "📹" },
-  { id: "food", label: "먹방", emoji: "🍜" },
+  { id: "drama", label: "Drama", emoji: "🎭" },
+  { id: "variety", label: "Variety Show", emoji: "🎪" },
+  { id: "movie", label: "Movie", emoji: "🎬" },
+  { id: "music", label: "Music/Live", emoji: "🎵" },
+  { id: "vlog", label: "Vlog", emoji: "📹" },
+  { id: "food", label: "Food Show", emoji: "🍜" },
 ];
 
 const TRAVEL_STYLES = [
-  { id: "healing", label: "힐링 여행", emoji: "🌿", desc: "조용하고 여유로운" },
-  { id: "activity", label: "액티비티", emoji: "🏃", desc: "활동적이고 역동적인" },
-  { id: "food", label: "맛집 투어", emoji: "🍽️", desc: "미식 탐방 중심" },
-  { id: "culture", label: "문화 체험", emoji: "🏛️", desc: "역사와 전통 탐방" },
-  { id: "hotplace", label: "핫플 투어", emoji: "📸", desc: "트렌디한 명소 방문" },
-  { id: "nature", label: "자연 탐방", emoji: "🏔️", desc: "산과 바다, 자연 속" },
+  {
+    id: "healing",
+    label: "Healing trip",
+    emoji: "🌿",
+    desc: "Calm and easygoing",
+  },
+  {
+    id: "activity",
+    label: "Activities",
+    emoji: "🏃",
+    desc: "Active and energetic",
+  },
+  {
+    id: "hotplace",
+    label: "Trendy spots",
+    emoji: "📸",
+    desc: "Visiting hot spots",
+  },
+  {
+    id: "food",
+    label: "Foodie tour",
+    emoji: "🍽️",
+    desc: "Centered on food hunts",
+  },
+  {
+    id: "culture",
+    label: "Cultural experience",
+    emoji: "🏛️",
+    desc: "History and tradition",
+  },
+  {
+    id: "nature",
+    label: "Nature escape",
+    emoji: "🏔️",
+    desc: "Mountains, sea, outdoors",
+  },
 ];
 
 export default function PreferencesSurvey({ onComplete }) {
-  const [step, setStep] = useState(0); // 0: 참여 여부 선택, 1~4: 설문 단계
+  const [step, setStep] = useState(0); // 0: participation choice, 1~4: survey steps (step 4 = pick from top 10)
   const [preferences, setPreferences] = useState({
-    participated: null, // true: 참여, false: 건너뛰기
+    participated: null, // true: participate, false: skip
     birthYear: "",
     gender: "",
     genres: [],
     travelStyles: [],
+    selectedContent: null,
+    skipContentSelection: false,
   });
 
   const handleBirthYearSelect = (year) => {
@@ -51,6 +84,17 @@ export default function PreferencesSurvey({ onComplete }) {
       ? preferences.travelStyles.filter((id) => id !== styleId)
       : [...preferences.travelStyles, styleId];
     setPreferences({ ...preferences, travelStyles: newStyles });
+  };
+
+  const handleSkipContentSelection = () => {
+    const updated = {
+      ...preferences,
+      selectedContent: null,
+      skipContentSelection: true,
+    };
+    setPreferences(updated);
+    // If "none" is chosen on the last step, finish immediately
+    onComplete(updated);
   };
 
   const handleParticipate = () => {
@@ -87,7 +131,11 @@ export default function PreferencesSurvey({ onComplete }) {
       case 3:
         return preferences.travelStyles.length > 0;
       case 4:
-        return preferences.region !== undefined && preferences.region !== "";
+        // Can proceed when one of the top picks is chosen or the user skips
+        return (
+          preferences.selectedContent !== null ||
+          preferences.skipContentSelection === true
+        );
       default:
         return false;
     }
@@ -98,7 +146,7 @@ export default function PreferencesSurvey({ onComplete }) {
       <div className="survey-container">
         {step > 0 && (
           <div className="survey-header">
-            <span className="survey-badge">취향저격</span>
+            <span className="survey-badge">Spot On</span>
             <div className="survey-progress">
               {[1, 2, 3, 4].map((s) => (
                 <div
@@ -113,32 +161,35 @@ export default function PreferencesSurvey({ onComplete }) {
         {step === 0 && (
           <div className="survey-content welcome-step">
             <h2 className="survey-title welcome-title">
-              나만을 위한
+              Want tailor-made
               <br />
-              맞춤 여행지 추천을
+              Korea trip ideas
               <br />
-              받아보시겠어요?
+              just for you?
             </h2>
             <p className="survey-subtitle">
-              간단한 취향 설문을 통해 당신에게 딱 맞는 한국 여행지를 추천해드려요.
+              A quick taste check to match you with the perfect Korean trip.
               <br />
-              약 1분이면 완료됩니다!
+              Takes about a minute!
             </p>
 
             <div className="welcome-options">
-              <button className="welcome-btn participate" onClick={handleParticipate}>
+              <button
+                className="welcome-btn participate"
+                onClick={handleParticipate}
+              >
                 <div className="welcome-icon">✨</div>
                 <div className="welcome-text">
-                  <span className="welcome-label">네, 참여할게요!</span>
-                  <span className="welcome-desc">나에게 딱 맞는 추천을 받고 싶어요</span>
+                  <span className="welcome-label">Yes, let's do it!</span>
+                  <span className="welcome-desc">I want a personal pick</span>
                 </div>
               </button>
 
               <button className="welcome-btn skip" onClick={handleSkip}>
                 <div className="welcome-icon">👋</div>
                 <div className="welcome-text">
-                  <span className="welcome-label">다음에 할게요</span>
-                  <span className="welcome-desc">일단 인기 콘텐츠부터 볼래요</span>
+                  <span className="welcome-label">Maybe later</span>
+                  <span className="welcome-desc">Show me popular picks</span>
                 </div>
               </button>
             </div>
@@ -148,15 +199,14 @@ export default function PreferencesSurvey({ onComplete }) {
         {step === 1 && (
           <div className="survey-content">
             <h2 className="survey-title">
-              나만을 위한 상품
+              For spot-on picks,
               <br />
-              추천을 위해
+              give us 3 seconds
               <br />
-              3초만 내어주세요!
+              to tune your profile!
             </h2>
             <p className="survey-subtitle">
-              출생년도와 성별을 설정하면, 나와 비슷한 사람들이 많이 찾는 키워드와
-              상품을 만나 볼 수 있어요.
+              Set your birth year and gender to see what similar travelers love.
             </p>
 
             <div className="survey-options">
@@ -166,7 +216,7 @@ export default function PreferencesSurvey({ onComplete }) {
                   onChange={(e) => handleBirthYearSelect(e.target.value)}
                   className="birth-year-dropdown"
                 >
-                  <option value="">출생년도 선택</option>
+                  <option value="">Select birth year</option>
                   {BIRTH_YEARS.map((year) => (
                     <option key={year} value={year}>
                       {year}
@@ -183,7 +233,7 @@ export default function PreferencesSurvey({ onComplete }) {
                   onClick={() => handleGenderSelect("female")}
                 >
                   <div className="gender-icon">👩</div>
-                  <span>여성</span>
+                  <span>Female</span>
                   {preferences.gender === "female" && (
                     <span className="check-mark">✓</span>
                   )}
@@ -195,7 +245,7 @@ export default function PreferencesSurvey({ onComplete }) {
                   onClick={() => handleGenderSelect("male")}
                 >
                   <div className="gender-icon">👨</div>
-                  <span>남성</span>
+                  <span>Male</span>
                   {preferences.gender === "male" && (
                     <span className="check-mark">✓</span>
                   )}
@@ -208,13 +258,12 @@ export default function PreferencesSurvey({ onComplete }) {
         {step === 2 && (
           <div className="survey-content">
             <h2 className="survey-title">
-              어떤 K-콘텐츠를
+              Which K-content
               <br />
-              즐겨보시나요?
+              do you enjoy?
             </h2>
             <p className="survey-subtitle">
-              선호하는 장르를 선택하면 관련 여행지를 추천해드려요. (중복 선택
-              가능)
+              Choose your favorite genres (multiple selection welcome).
             </p>
 
             <div className="survey-options genre-grid">
@@ -240,12 +289,12 @@ export default function PreferencesSurvey({ onComplete }) {
         {step === 3 && (
           <div className="survey-content">
             <h2 className="survey-title">
-              선호하는
+              What's your
               <br />
-              여행 스타일은?
+              travel style?
             </h2>
             <p className="survey-subtitle">
-              여행 스타일에 맞는 장소를 추천해드려요. (중복 선택 가능)
+              We'll match spots to your style (choose as many as you like).
             </p>
 
             <div className="survey-options travel-grid">
@@ -253,7 +302,9 @@ export default function PreferencesSurvey({ onComplete }) {
                 <button
                   key={style.id}
                   className={`travel-btn ${
-                    preferences.travelStyles.includes(style.id) ? "selected" : ""
+                    preferences.travelStyles.includes(style.id)
+                      ? "selected"
+                      : ""
                   }`}
                   onClick={() => handleTravelStyleToggle(style.id)}
                 >
@@ -274,40 +325,37 @@ export default function PreferencesSurvey({ onComplete }) {
         {step === 4 && (
           <div className="survey-content">
             <h2 className="survey-title">
-              마지막으로,
+              Lastly,
               <br />
-              관심있는 지역은?
+              which K-content grabs you?
             </h2>
             <p className="survey-subtitle">
-              선택한 지역의 콘텐츠와 여행지를 우선적으로 보여드려요.
+              Pick one to see travel ideas linked to it.
             </p>
 
-            <div className="survey-options region-grid">
-              {[
-                "서울",
-                "경기",
-                "강원",
-                "충청",
-                "전라",
-                "경상",
-                "제주",
-              ].map((region) => (
-                <button
-                  key={region}
-                  className={`region-btn ${
-                    preferences.region === region ? "selected" : ""
-                  }`}
-                  onClick={() =>
-                    setPreferences({ ...preferences, region })
-                  }
-                >
-                  {region}
-                  {preferences.region === region && (
-                    <span className="check-mark">✓</span>
-                  )}
-                </button>
-              ))}
+            <div className="survey-carousel-wrapper">
+              <KoreanCarousel
+                isPersonalized={false}
+                userPreferences={preferences}
+                variant="survey"
+                selectedContent={preferences.selectedContent}
+                onSelectContent={(video) =>
+                  setPreferences({
+                    ...preferences,
+                    selectedContent: video,
+                    skipContentSelection: false,
+                  })
+                }
+              />
             </div>
+
+            <button
+              type="button"
+              className="survey-skip-content-btn"
+              onClick={handleSkipContentSelection}
+            >
+              No interesting content right now
+            </button>
           </div>
         )}
 
@@ -315,7 +363,7 @@ export default function PreferencesSurvey({ onComplete }) {
           <div className="survey-footer">
             {step > 1 && (
               <button className="survey-btn-back" onClick={handleBack}>
-                이전
+                Back
               </button>
             )}
             <button
@@ -325,11 +373,11 @@ export default function PreferencesSurvey({ onComplete }) {
             >
               {step === 4 ? (
                 <>
-                  나에게 꼕 맞는 상품 보기
+                  See my tailored picks
                   <span className="btn-icon">🔍</span>
                 </>
               ) : (
-                "다음"
+                "Next"
               )}
             </button>
           </div>
