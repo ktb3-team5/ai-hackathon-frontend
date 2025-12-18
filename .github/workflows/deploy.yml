@@ -3,8 +3,8 @@ name: Deploy to S3 + CloudFront
 on:
   push:
     branches:
-      - feat/cicd  # feat/cicd 브랜치에 push할 때마다 자동 배포
-  workflow_dispatch:  # GitHub에서 수동 실행 가능
+      - main  
+  workflow_dispatch:  
 
 jobs:
   deploy:
