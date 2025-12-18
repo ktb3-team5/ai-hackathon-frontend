@@ -6,6 +6,7 @@
   --shadow: 0 18px 40px rgba(0, 0, 0, 0.14);
   --radius: 20px;
   --accent: #0baeff;
+  color-scheme: light;
 }
 
 * {
@@ -30,4 +31,13 @@ a {
 }
 button {
   font: inherit;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #ffffff;
+    --text: #121212;
+    --muted: #6b6b6b;
+    --line: rgba(0, 0, 0, 0.06);
+  }
 }

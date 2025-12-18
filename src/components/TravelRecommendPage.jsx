@@ -18,8 +18,12 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
     userPreferences?.birthYear &&
     new Date().getFullYear() - parseInt(userPreferences.birthYear);
 
-  /** 🔥 reveal 대상 refs */
-  const revealRefs = useRef([]);
+  const [likedIds, setLikedIds] = useState(() => new Set());
+  const [visibleIds, setVisibleIds] = useState(() => new Set());
+
+  const [activeCardId, setActiveCardId] = useState(null);
+
+  const teamReviewRef = useRef(null);
 
   useEffect(() => {
     // 선택한 미디어의 여행지 추천 가져오기
@@ -43,12 +47,24 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
+  }, []);
+
+  useEffect(() => {
+    const markVisible = (id) => {
+      setVisibleIds((prev) => {
+        if (prev.has(id)) return prev;
+        const next = new Set(prev);
+        next.add(id);
+        return next;
+      });
+    };
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            entry.target.classList.add("is-visible");
+            const id = entry.target.dataset.revealId;
+            if (id) markVisible(id);
             observer.unobserve(entry.target);
           }
         });
@@ -56,7 +72,9 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
       { threshold: 0.15 }
     );
 
-    revealRefs.current.forEach((el) => el && observer.observe(el));
+    document
+      .querySelectorAll("[data-reveal-id]")
+      .forEach((el) => observer.observe(el));
 
     return () => observer.disconnect();
   }, []);
@@ -76,19 +94,60 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
     );
   };
 
+  const scrollToTeamReviews = () => {
+    teamReviewRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
+
   /** 주소 안전 추출 */
   const getAddress = (item) =>
     item.locations ? item.locations[0].address : item.location;
 
+  const toggleLike = (id) => {
+    setLikedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  };
+
+  const isLiked = (id) => likedIds.has(id);
+  const isVisible = (id) => visibleIds.has(id);
+
+  const sortByLiked = (list) => {
+    const liked = [];
+    const rest = [];
+    list.forEach((item) => {
+      if (isLiked(item.id)) {
+        liked.push(item);
+      } else {
+        rest.push(item);
+      }
+    });
+    return [...liked, ...rest];
+  };
+
   return (
     <section className="travel-page">
       <header
-        className="travel-header reveal"
-        ref={(el) => revealRefs.current.push(el)}
+        className={`travel-header reveal${
+          isVisible("header") ? " is-visible" : ""
+        }`}
+        data-reveal-id="header"
       >
         {onBack && (
           <button className="travel-back-btn" onClick={onBack}>
-            ← Back
+            <img
+              src="/images/back.png"
+              alt="Back"
+              className="travel-back-icon"
+            />
           </button>
         )}
 
@@ -111,6 +170,12 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           We curated real travel and food routes to extend the emotion sparked
           by K-content.
         </p>
+
+        <div className="team-review-cta-wrapper">
+          <button className="team-review-cta-btn" onClick={scrollToTeamReviews}>
+            💬 See Team Picks
+          </button>
+        </div>
       </header>
 
       {/* 0. 추천 여행지 TOP 3 (백엔드에서 가져온 데이터) */}
@@ -157,36 +222,114 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           Only the most talked-about spots that appeared on Black & White Chef.
         </p>
 
-        <div className="card-row">
-          {topRestaurants.map((item, idx) => (
-            <article
-              key={item.id}
-              className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
-              ref={(el) => revealRefs.current.push(el)}
-            >
-              <div className="restaurant-thumb">
-                <img
-                  src={`https://picsum.photos/seed/${item.id}/500/320`}
-                  alt={item.restaurant}
-                />
-              </div>
-
-              <div className="restaurant-card-header">
-                <span className="restaurant-chip">TOP PICK</span>
-                <span className="restaurant-chef">Chef {item.chef}</span>
-              </div>
-
-              <p className="restaurant-name">{item.restaurant}</p>
-              <p className="restaurant-location">{getAddress(item)}</p>
-
-              <button
-                className="restaurant-map-btn"
-                onClick={() => openGoogleMap(item.restaurant, getAddress(item))}
+        <div className="card-row-wrap">
+          <div className="card-row">
+            {sortByLiked(topRestaurants).map((item, idx) => (
+              <article
+                key={item.id}
+                className={`restaurant-card reveal delay-${(idx % 4) + 1}${
+                  isVisible(`top-${item.id}`) ? " is-visible" : ""
+                }`}
+                data-reveal-id={`top-${item.id}`}
+                onClick={() => setActiveCardId(item.id)}
               >
-                🗺️ Open in Google Maps
-              </button>
-            </article>
-          ))}
+                <div className="restaurant-thumb">
+                  <img
+                    src={`https://picsum.photos/seed/${item.id}/500/320`}
+                    alt={item.restaurant}
+                  />
+                  <span className="restaurant-chip on-thumb">TOP PICK</span>
+                  <button
+                    type="button"
+                    className={`like-btn${isLiked(item.id) ? " is-liked" : ""}`}
+                    onClick={(e) => {
+                      e.stopPropagation(); // 🔥 핵심
+                      toggleLike(item.id);
+                    }}
+                    aria-pressed={isLiked(item.id)}
+                    aria-label={
+                      isLiked(item.id)
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                  >
+                    <img
+                      key={isLiked(item.id) ? "liked" : "unliked"}
+                      className="like-icon"
+                      src={
+                        isLiked(item.id)
+                          ? "/images/heart_on.svg"
+                          : "/images/heart.svg"
+                      }
+                      alt=""
+                      aria-hidden="true"
+                    />
+                  </button>
+
+                  {/* 🔥 인카드 미니 모달 */}
+                  {activeCardId === item.id && (
+                    <div
+                      className="card-overlay-modal"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <button
+                        className="card-overlay-close"
+                        onClick={() => setActiveCardId(null)}
+                        aria-label="Close"
+                      >
+                        <img
+                          src="/images/cancel.png"
+                          alt=""
+                          aria-hidden="true"
+                        />
+                      </button>
+
+                      <h4 className="card-overlay-title">{item.restaurant}</h4>
+                      <p className="card-overlay-desc">
+                        Visiting 경복궁 immerses you in the enchanting world of
+                        해를 품은 달, where the elegant architecture and serene
+                        gardens evoke the romance and intrigue of historical
+                        drama. Strolling through its grounds, you’ll feel
+                        connected to the poignant emotions of the characters.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                <div className="restaurant-card-header">
+                  <span className="restaurant-chef">Chef {item.chef}</span>
+                </div>
+
+                <p className="restaurant-name">{item.restaurant}</p>
+                <p className="restaurant-location">{getAddress(item)}</p>
+
+                <div className="restaurant-map-actions">
+                  <button
+                    className="restaurant-map-btn"
+                    onClick={() =>
+                      openGoogleMap(item.restaurant, getAddress(item))
+                    }
+                  >
+                    🗺️ Google Maps
+                  </button>
+                  <button
+                    className="restaurant-map-btn"
+                    onClick={() =>
+                      openGoogleMap(item.restaurant, getAddress(item))
+                    } // 여기에 백엔드에서 받아온 구글 뷰 링크 넣어야됌.
+                  >
+                    🗺️ Google Map Views
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+          <img
+            className="card-row-arrow"
+            src="/images/next.png"
+            alt=""
+            aria-hidden="true"
+          />
         </div>
       </section>
 
@@ -197,36 +340,81 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           Chosen so you can visit multiple spots in one route.
         </p>
 
-        <div className="card-row">
-          {ourPickRestaurants.map((item, idx) => (
-            <article
-              key={item.id}
-              className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
-              ref={(el) => revealRefs.current.push(el)}
-            >
-              <div className="restaurant-thumb">
-                <img
-                  src={`https://picsum.photos/seed/${item.id}/500/320`}
-                  alt={item.restaurant}
-                />
-              </div>
-
-              <div className="restaurant-card-header">
-                <span className="restaurant-chip">COURSE PICK</span>
-                <span className="restaurant-chef">Chef {item.chef}</span>
-              </div>
-
-              <p className="restaurant-name">{item.restaurant}</p>
-              <p className="restaurant-location">{getAddress(item)}</p>
-
-              <button
-                className="restaurant-map-btn"
-                onClick={() => openGoogleMap(item.restaurant, getAddress(item))}
+        <div className="card-row-wrap">
+          <div className="card-row">
+            {sortByLiked(ourPickRestaurants).map((item, idx) => (
+              <article
+                key={item.id}
+                className={`restaurant-card reveal delay-${(idx % 4) + 1}${
+                  isVisible(`our-${item.id}`) ? " is-visible" : ""
+                }`}
+                data-reveal-id={`our-${item.id}`}
               >
-                🗺️ Open in Google Maps
-              </button>
-            </article>
-          ))}
+                <div className="restaurant-thumb">
+                  <img
+                    src={`https://picsum.photos/seed/${item.id}/500/320`}
+                    alt={item.restaurant}
+                  />
+                  <span className="restaurant-chip on-thumb">COURSE PICK</span>
+                  <button
+                    type="button"
+                    className={`like-btn${isLiked(item.id) ? " is-liked" : ""}`}
+                    onClick={() => toggleLike(item.id)}
+                    aria-pressed={isLiked(item.id)}
+                    aria-label={
+                      isLiked(item.id)
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                  >
+                    <img
+                      key={isLiked(item.id) ? "liked" : "unliked"}
+                      className="like-icon"
+                      src={
+                        isLiked(item.id)
+                          ? "/images/heart_on.svg"
+                          : "/images/heart.svg"
+                      }
+                      alt=""
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+
+                <div className="restaurant-card-header">
+                  <span className="restaurant-chef">Chef {item.chef}</span>
+                </div>
+
+                <p className="restaurant-name">{item.restaurant}</p>
+                <p className="restaurant-location">{getAddress(item)}</p>
+
+                <div className="restaurant-map-actions">
+                  <button
+                    className="restaurant-map-btn"
+                    onClick={() =>
+                      openGoogleMap(item.restaurant, getAddress(item))
+                    }
+                  >
+                    🗺️ Google Maps
+                  </button>
+                  <button
+                    className="restaurant-map-btn"
+                    onClick={() =>
+                      openGoogleMap(item.restaurant, getAddress(item))
+                    } // 여기에 백엔드에서 받아온 구글 뷰 링크 넣어야됌.
+                  >
+                    🗺️ Google Map Views
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+          <img
+            className="card-row-arrow"
+            src="/images/next.png"
+            alt=""
+            aria-hidden="true"
+          />
         </div>
       </section>
 
@@ -237,42 +425,90 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           Easy stops near your route to slip in between activities.
         </p>
 
-        <div className="card-row">
-          {nearbyRestaurants.map((item, idx) => (
-            <article
-              key={item.id}
-              className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
-              ref={(el) => revealRefs.current.push(el)}
-            >
-              <div className="restaurant-thumb">
-                <img
-                  src={`https://picsum.photos/seed/${item.id}/500/320`}
-                  alt={item.restaurant}
-                />
-              </div>
-
-              <div className="restaurant-card-header">
-                <span className="restaurant-chip">NEARBY</span>
-                <span className="restaurant-chef">Chef {item.chef}</span>
-              </div>
-
-              <p className="restaurant-name">{item.restaurant}</p>
-              <p className="restaurant-location">{getAddress(item)}</p>
-
-              <button
-                className="restaurant-map-btn"
-                onClick={() => openGoogleMap(item.restaurant, getAddress(item))}
+        <div className="card-row-wrap">
+          <div className="card-row">
+            {sortByLiked(nearbyRestaurants).map((item, idx) => (
+              <article
+                key={item.id}
+                className={`restaurant-card reveal delay-${(idx % 4) + 1}${
+                  isVisible(`near-${item.id}`) ? " is-visible" : ""
+                }`}
+                data-reveal-id={`near-${item.id}`}
               >
-                🗺️ Open in Google Maps
-              </button>
-            </article>
-          ))}
+                <div className="restaurant-thumb">
+                  <img
+                    src={`https://picsum.photos/seed/${item.id}/500/320`}
+                    alt={item.restaurant}
+                  />
+                  <span className="restaurant-chip on-thumb">NEARBY</span>
+                  <button
+                    type="button"
+                    className={`like-btn${isLiked(item.id) ? " is-liked" : ""}`}
+                    onClick={() => toggleLike(item.id)}
+                    aria-pressed={isLiked(item.id)}
+                    aria-label={
+                      isLiked(item.id)
+                        ? "Remove from favorites"
+                        : "Add to favorites"
+                    }
+                  >
+                    <img
+                      key={isLiked(item.id) ? "liked" : "unliked"}
+                      className="like-icon"
+                      src={
+                        isLiked(item.id)
+                          ? "/images/heart_on.svg"
+                          : "/images/heart.svg"
+                      }
+                      alt=""
+                      aria-hidden="true"
+                    />
+                  </button>
+                </div>
+
+                <div className="restaurant-card-header">
+                  <span className="restaurant-chef">Chef {item.chef}</span>
+                </div>
+
+                <p className="restaurant-name">{item.restaurant}</p>
+                <p className="restaurant-location">{getAddress(item)}</p>
+
+                <div className="restaurant-map-actions">
+                  <button
+                    className="restaurant-map-btn"
+                    onClick={() =>
+                      openGoogleMap(item.restaurant, getAddress(item))
+                    }
+                  >
+                    🗺️ Google Maps
+                  </button>
+                  <button
+                    className="restaurant-map-btn"
+                    onClick={() =>
+                      openGoogleMap(item.restaurant, getAddress(item))
+                    } // 여기에 백엔드에서 받아온 구글 뷰 링크 넣어야됌.
+                  >
+                    🗺️ Google Map Views
+                  </button>
+                </div>
+              </article>
+            ))}
+          </div>
+          <img
+            className="card-row-arrow"
+            src="/images/next.png"
+            alt=""
+            aria-hidden="true"
+          />
         </div>
       </section>
       {/* 4. Team Picks – Chat Style Reviews */}
       <section
-        className="team-review-section reveal"
-        ref={(el) => revealRefs.current.push(el)}
+        className={`team-review-section reveal${
+          isVisible("team-review") ? " is-visible" : ""
+        }`}
+        data-reveal-id="team-review"
+        ref={teamReviewRef}
       >
         <h2 className="section-title center">Team Picks 💬</h2>
         <p className="section-subtitle center">
@@ -283,7 +519,7 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           {/* LEFT */}
           <div className="chat-item left">
             <img
-              src="/images/avatar.jpeg"
+              src="/images/avatar3.jpeg"
               alt="team member"
               className="chat-avatar"
             />
@@ -318,7 +554,7 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
               </p>
             </div>
             <img
-              src="/images/avatar.jpeg"
+              src="/images/avatar4.jpeg"
               alt="team member"
               className="chat-avatar"
             />
@@ -327,7 +563,7 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           {/* LEFT */}
           <div className="chat-item left">
             <img
-              src="/images/avatar2.jpeg"
+              src="/images/avatar5.jpeg"
               alt="team member"
               className="chat-avatar"
             />

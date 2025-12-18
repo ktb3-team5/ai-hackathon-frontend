@@ -1,8 +1,10 @@
 .workation {
   position: relative;
-  padding: 0 0 70px;
-  background: #ffffff;
+  padding: 0;
+  /* background: #4fe0b6; */
+  background: #030f0f;
   overflow: hidden;
+  overflow-y: hidden;
 }
 
 /* =====================
@@ -15,6 +17,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
+}
+
+.workation-search-area {
+  text-align: center;
 }
 
 .workation-search-input {
@@ -34,7 +40,8 @@
 
 .workation-search-input:focus {
   outline: none;
-  border-color: #0baeff;
+  /* border-color: #0baeff; */
+  border-color: #4fe0b6;
   box-shadow: 0 0 0 4px rgba(11, 174, 255, 0.15);
 }
 
@@ -59,13 +66,7 @@
   width: 100%;
   overflow-x: hidden;
   overscroll-behavior-x: contain;
-  padding: 8px 0;
-  background: linear-gradient(
-    180deg,
-    #ffffff 0%,
-    rgba(11, 174, 255, 0.06) 45%,
-    #ffffff 100%
-  );
+  padding: 20px 0;
 }
 
 .image-marquee:hover {
@@ -91,7 +92,7 @@
 .image-track {
   display: flex;
   width: max-content;
-  animation: marquee 40s linear infinite;
+  animation: marquee 80s linear infinite;
   will-change: transform;
 }
 
@@ -119,16 +120,18 @@
   aspect-ratio: 2 / 3;
 
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: 20px;
   transition: transform 0.25s ease;
   outline: none;
   padding: 0;
-  background: linear-gradient(
+  border: none;
+  background: transparent;
+  /* background: linear-gradient(
     180deg,
     #ffffff 0%,
     rgba(11, 174, 255, 0.06) 45%,
     #ffffff 100%
-  );
+  ); */
 }
 
 .image-item:focus,
@@ -144,6 +147,9 @@
   object-fit: cover;
   display: block;
   transition: transform 0.25s ease;
+  border: none;
+  outline: none;
+  border-radius: 20px;
 }
 
 .image-item:hover {
@@ -177,17 +183,21 @@
 }
 
 .workation-sub {
-  font-size: 23px;
+  font-size: 30px;
   line-height: 1.6;
-  color: #111;
+  /* color: #121212; */
+  color: #ffffff;
   margin-bottom: 32px;
 }
 
 .workation-title {
-  font-size: 56px;
+  font-size: 70px;
   font-weight: 500;
-  letter-spacing: 0.28em;
-  color: #2f66ff;
+  letter-spacing: 0.18em;
+  /* color: #0baeff; */
+  /* color: #ffffff; */
+  color: #4fe0b6;
+  margin-top: 10px;
 }
 
 /* =====================

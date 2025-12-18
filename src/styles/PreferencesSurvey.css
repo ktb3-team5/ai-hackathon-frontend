@@ -1,6 +1,6 @@
 .survey-overlay {
   min-height: 100vh;
-  background: white;
+  background: #4fe0b6;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -21,6 +21,8 @@
   background: white;
   width: 100%;
   max-width: 520px;
+  max-height: 85vh;
+  overflow-y: auto;
   position: relative;
   padding: 48px 32px 32px;
   border: 1px solid #e5e7eb;
@@ -49,7 +51,7 @@
 
 .survey-badge {
   display: inline-block;
-  background: linear-gradient(135deg, #0baeff, #0891d8);
+  background: linear-gradient(135deg, #4fe0b6, #2ec9a3);
   color: white;
   padding: 8px 20px;
   border-radius: 999px;
@@ -74,7 +76,7 @@
 }
 
 .progress-dot.active {
-  background: linear-gradient(135deg, #0baeff, #0891d8);
+  background: linear-gradient(135deg, #4fe0b6, #2ec9a3);
 }
 
 .survey-content {
@@ -128,17 +130,17 @@
 
 .welcome-btn:hover {
   transform: translateY(-4px);
-  box-shadow: 0 12px 30px rgba(11, 174, 255, 0.2);
+  box-shadow: 0 12px 30px rgba(79, 224, 182, 0.2);
 }
 
 .welcome-btn.participate {
-  background: linear-gradient(135deg, #e0f2fe, #f0f9ff);
-  border-color: #7dd3fc;
+  background: linear-gradient(135deg, #dbf7ee, #f3fdf9);
+  border-color: #a6f0d9;
 }
 
 .welcome-btn.participate:hover {
-  border-color: #0baeff;
-  box-shadow: 0 12px 30px rgba(11, 174, 255, 0.3);
+  border-color: #4fe0b6;
+  box-shadow: 0 12px 30px rgba(79, 224, 182, 0.3);
 }
 
 .welcome-btn.skip {
@@ -201,7 +203,7 @@
 
 .birth-year-dropdown:focus {
   outline: none;
-  border-color: #0baeff;
+  border-color: #4fe0b6;
   background: white;
 }
 
@@ -228,13 +230,19 @@
 }
 
 .gender-btn:hover {
-  border-color: #7dd3fc;
-  background: #f0f9ff;
+  border-color: #8fe8ce;
+  background: #eefbf7;
 }
 
 .gender-btn.selected {
-  border-color: #0baeff;
-  background: #e0f2fe;
+  border-color: #4fe0b6;
+  background: #e6faf3;
+}
+
+.gender-btn:focus,
+.gender-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .gender-icon {
@@ -271,15 +279,21 @@
 
 /* hover */
 .step-one .age-btn:hover {
-  border-color: #93c5fd;
-  background: #f0f9ff;
+  border-color: #8fe8ce;
+  background: #eefbf7;
 }
 
 /* 선택 상태 (📸 스샷 핵심 포인트) */
 .step-one .age-btn.selected {
-  background: #0baeff; /* 스샷과 유사한 퍼플톤 */
-  border-color: #0baeff;
-  color: #ffffff;
+  border-color: #4fe0b6;
+  background: #e6faf3;
+  color: #121212;
+}
+
+.step-one .age-btn:focus,
+.step-one .age-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 /* Genre Grid */
@@ -304,14 +318,21 @@
 }
 
 .genre-btn:hover {
-  border-color: #7dd3fc;
-  background: #f0f9ff;
+  border-color: #8fe8ce;
+  background: #eefbf7;
   transform: translateY(-2px);
 }
 
 .genre-btn.selected {
-  border-color: #0baeff;
-  background: #e0f2fe;
+  border-color: #4fe0b6;
+  background: #e6faf3;
+  color: #121212;
+}
+
+.genre-btn:focus,
+.genre-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .genre-emoji {
@@ -346,14 +367,20 @@
 }
 
 .travel-btn:hover {
-  border-color: #7dd3fc;
-  background: #f0f9ff;
+  border-color: #8fe8ce;
+  background: #eefbf7;
   transform: translateX(4px);
 }
 
 .travel-btn.selected {
-  border-color: #0baeff;
-  background: #e0f2fe;
+  border-color: #4fe0b6;
+  background: #e6faf3;
+}
+
+.travel-btn:focus,
+.travel-btn:focus-visible {
+  outline: none;
+  box-shadow: none;
 }
 
 .travel-emoji {
@@ -371,12 +398,12 @@
 .travel-label {
   font-size: 16px;
   font-weight: 600;
-  color: #0f172a;
+  color: #0f172a !important;
 }
 
 .travel-desc {
   font-size: 13px;
-  color: #64748b;
+  color: #64748b !important;
 }
 
 /* Region Grid */
@@ -457,7 +484,7 @@
   padding: 16px 24px;
   border: none;
   border-radius: 16px;
-  background: linear-gradient(135deg, #0baeff, #0891d8);
+  background: linear-gradient(135deg, #4fe0b6, #2ec9a3);
   color: white;
   font-size: 16px;
   font-weight: 700;
@@ -471,7 +498,7 @@
 
 .survey-btn-next:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(11, 174, 255, 0.4);
+  box-shadow: 0 12px 30px rgba(79, 224, 182, 0.3);
 }
 
 .survey-btn-next:disabled {
@@ -500,6 +527,74 @@
 
 .survey-container::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
+}
+
+/* =====================
+   IN-CARD OVERLAY MODAL
+===================== */
+
+.restaurant-thumb {
+  position: relative; /* 🔥 기준 */
+  overflow: hidden;
+}
+
+.card-overlay-modal {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  color: #ffffff;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  padding: 0px;
+  animation: fadeInOverlay 0.2s ease;
+}
+
+@keyframes fadeInOverlay {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.card-overlay-title {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.card-overlay-desc {
+  font-size: 14px;
+  line-height: 1.6;
+  opacity: 0.95;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 10; /* 🔥 최대 10줄 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.card-overlay-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.15);
+  border: none;
+  color: #fff;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.card-overlay-close:hover {
+  background: rgba(255, 255, 255, 0.3);
 }
 
 @media (max-width: 640px) {

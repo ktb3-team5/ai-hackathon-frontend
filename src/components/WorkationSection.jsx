@@ -90,7 +90,7 @@ export default function WorkationSection({ onSelectImage, onSearch }) {
 
   return (
     <section className="workation">
-      <div className="workation-text">
+      <div className="workation-search-area">
         {/* 🔍 SEARCH BAR */}
         <form className="workation-search" onSubmit={handleSearch}>
           <input
@@ -104,12 +104,6 @@ export default function WorkationSection({ onSelectImage, onSearch }) {
             🔍
           </button>
         </form>
-        <h2 className="workation-title">DISCOVER K-DRAMA LOCATIONS</h2>
-        <p className="workation-sub">
-          Choose a K-Drama you love.
-          <br />
-          We’ll show you where to go in Korea.
-        </p>
       </div>
       <div
         className={`image-marquee${isDragging ? " is-dragging" : ""}`}
@@ -137,6 +131,14 @@ export default function WorkationSection({ onSelectImage, onSearch }) {
             );
           })}
         </div>
+      </div>
+      <div className="workation-text">
+        <p className="workation-sub">
+          Choose a K-Drama you love.
+          <br />
+          We’ll show you where to go in Korea.
+        </p>
+        <h2 className="workation-title">INTO-K : THE K-MEDIA</h2>
       </div>
     </section>
   );
