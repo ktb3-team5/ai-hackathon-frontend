@@ -2,22 +2,6 @@ import { useRef, useState, useEffect } from "react";
 import "../styles/WorkationSection.css";
 import { api } from "../services/api";
 
-const IMAGES = [
-  "/images/top1.png",
-  "/images/top2.png",
-  "/images/top3.png",
-  "/images/top4.png",
-  "/images/top5.png",
-  "/images/top6.png",
-  "/images/top7.png",
-  "/images/top9.png",
-  "/images/top10.png",
-  "/images/img1.png",
-  "/images/img2.png",
-  "/images/img3.png",
-  "/images/img4.png",
-];
-
 export default function WorkationSection({ onSelectImage, onSearch }) {
   const [keyword, setKeyword] = useState("");
   const [isDragging, setIsDragging] = useState(false);
@@ -40,9 +24,9 @@ export default function WorkationSection({ onSelectImage, onSearch }) {
     fetchMedia();
   }, []);
 
-  const handleClick = (mediaId) => {
+  const handleClick = (media) => {
     if (onSelectImage && !hasDragged.current) {
-      onSelectImage(mediaId);
+      onSelectImage(media);
     }
   };
 
@@ -114,22 +98,25 @@ export default function WorkationSection({ onSelectImage, onSearch }) {
         onMouseLeave={handleMouseUp}
       >
         <div className="image-track scrollable">
-          {(mediaList.length > 0 ? [...mediaList, ...mediaList] : [...IMAGES, ...IMAGES]).map((item, idx) => {
-            const src = item.posterUrl || item;
-            const mediaId = item.id;
-            const title = item.title || '';
-            return (
-              <button
-                type="button"
-                className="image-item"
-                key={idx}
-                onClick={() => handleClick(mediaId)}
-                aria-label={`Open travel recommendation for ${title}`}
-              >
-                <img src={src} alt={title} draggable={false} />
-              </button>
-            );
-          })}
+          {mediaList.length > 0 ? (
+            [...mediaList, ...mediaList].map((item, idx) => {
+              const src = item.posterUrl;
+              const title = item.title || '';
+              return (
+                <button
+                  type="button"
+                  className="image-item"
+                  key={idx}
+                  onClick={() => handleClick(item)}
+                  aria-label={`Open travel recommendation for ${title}`}
+                >
+                  <img src={src} alt={title} draggable={false} />
+                </button>
+              );
+            })
+          ) : (
+            <div className="loading-placeholder">Loading media...</div>
+          )}
         </div>
       </div>
       <div className="workation-text">

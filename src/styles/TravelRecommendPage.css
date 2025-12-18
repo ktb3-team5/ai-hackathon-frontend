@@ -306,14 +306,21 @@ body {
   flex-direction: column;
   border-radius: 20px;
   background: #ffffff;
-  /* box-shadow: 0 12px 30px rgba(15, 23, 42, 0.12); */
   overflow: hidden;
-  padding: 0; /* ❗ 기존 padding 제거 */
-  transition: transform 0.25s ease;
+  padding: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
 }
 
 .restaurant-card:hover {
   transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.15);
+}
+
+/* 좋아요한 카드 강조 */
+.restaurant-card.is-liked-card {
+  box-shadow: 0 8px 24px rgba(79, 224, 182, 0.2);
+  border: 2px solid rgba(79, 224, 182, 0.3);
 }
 
 /* 🔥 이미지 영역 크게 */
@@ -376,16 +383,13 @@ body {
   position: absolute;
   top: 14px;
   right: 14px;
-
   background: none;
   border: none;
   padding: 0;
-
   cursor: pointer;
-
-  /* ❗ 브라우저 기본 효과 전부 제거 */
   outline: none;
   box-shadow: none;
+  z-index: 10;
 }
 
 .like-btn:hover,
@@ -399,22 +403,42 @@ body {
 
 /* ❤️ 아이콘 기본 상태 */
 .like-btn .like-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
   display: block;
-  transition: transform 0.18s ease;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
-/* hover 시 — 하트만 살짝 강조 */
-
-/* ❤️ liked 상태 */
-.like-btn.is-liked .like-icon {
+/* hover 시 */
+.like-btn:hover .like-icon {
   transform: scale(1.15);
 }
 
-/* 좋아요 토글 순간 팝 */
+/* ❤️ liked 상태 */
+.like-btn.is-liked .like-icon {
+  transform: scale(1.2);
+  filter: drop-shadow(0 4px 12px rgba(255, 107, 157, 0.6));
+}
+
+/* 좋아요 토글 순간 팝 애니메이션 */
 .like-btn.is-liked {
-  animation: like-pop 260ms ease;
+  animation: like-pop-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes like-pop-bounce {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.3) rotate(8deg);
+  }
+  70% {
+    transform: scale(0.9) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+  }
 }
 
 .restaurant-card:hover .restaurant-thumb img {
@@ -663,71 +687,68 @@ body {
   }
 }
 
-/* Floating Time Slip Button - Modern & Cute */
+/* Floating Time Slip Button - Minimal & Modern */
 .floating-timeslip-btn {
   position: fixed;
-  right: 32px;
-  bottom: 32px;
-  width: 140px;
-  height: 140px;
-  background: linear-gradient(135deg, #ff6b9d 0%, #c084fc 50%, #60a5fa 100%);
-  border-radius: 50%;
-  border: 4px solid rgba(255, 255, 255, 0.3);
+  right: 24px;
+  bottom: 24px;
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg,
+    rgba(79, 224, 182, 0.95) 0%,
+    rgba(79, 224, 182, 0.85) 100%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-radius: 20px;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
   box-shadow:
-    0 12px 40px rgba(255, 107, 157, 0.4),
-    0 0 0 0 rgba(255, 107, 157, 0.5),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.1),
-    inset 0 2px 8px rgba(255, 255, 255, 0.3);
+    0 4px 16px rgba(79, 224, 182, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
   cursor: pointer;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  gap: 4px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1000;
-  animation: float-cute 3s ease-in-out infinite, pulse-ring-cute 2.5s infinite;
 }
 
 .floating-timeslip-btn:hover {
-  transform: translateY(-8px) scale(1.1) rotate(5deg);
+  transform: translateY(-4px) scale(1.08);
+  background: linear-gradient(135deg,
+    rgba(79, 224, 182, 1) 0%,
+    rgba(79, 224, 182, 0.9) 100%);
   box-shadow:
-    0 20px 50px rgba(255, 107, 157, 0.5),
-    0 0 0 20px rgba(255, 107, 157, 0.15),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.1),
-    inset 0 2px 8px rgba(255, 255, 255, 0.4);
+    0 8px 24px rgba(79, 224, 182, 0.35),
+    0 0 0 8px rgba(79, 224, 182, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.5);
 }
 
 .floating-timeslip-btn:active {
-  transform: translateY(-4px) scale(1.05) rotate(0deg);
+  transform: translateY(-2px) scale(1.04);
 }
 
-@keyframes float-cute {
+@keyframes float-gentle {
   0%, 100% {
-    transform: translateY(0) rotate(0deg);
-  }
-  25% {
-    transform: translateY(-10px) rotate(-3deg);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-5px) rotate(0deg);
-  }
-  75% {
-    transform: translateY(-10px) rotate(3deg);
+    transform: translateY(-8px);
   }
 }
 
-@keyframes pulse-ring-cute {
-  0% {
+@keyframes pulse-glow {
+  0%, 100% {
     box-shadow:
-      0 12px 40px rgba(255, 107, 157, 0.4),
-      0 0 0 0 rgba(255, 107, 157, 0.6),
-      inset 0 -4px 8px rgba(0, 0, 0, 0.1),
-      inset 0 2px 8px rgba(255, 255, 255, 0.3);
+      0 8px 32px rgba(79, 224, 182, 0.3),
+      0 0 0 0 rgba(79, 224, 182, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.5);
   }
   50% {
     box-shadow:
-      0 12px 40px rgba(255, 107, 157, 0.4),
-      0 0 0 20px rgba(255, 107, 157, 0),
+      0 8px 32px rgba(79, 224, 182, 0.3),
+      0 0 0 16px rgba(79, 224, 182, 0),
       inset 0 -4px 8px rgba(0, 0, 0, 0.1),
       inset 0 2px 8px rgba(255, 255, 255, 0.3);
   }
@@ -740,185 +761,36 @@ body {
   }
 }
 
-/* Character Design - Modern & Cute */
-.floating-btn-character {
-  margin-bottom: 6px;
-  position: relative;
-}
-
-.character-body {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.15));
-}
-
-.character-head {
-  width: 52px;
-  height: 52px;
-  background: linear-gradient(135deg, #ffffff 0%, #fef3f8 100%);
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 6px;
-  box-shadow:
-    0 4px 12px rgba(0, 0, 0, 0.1),
-    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
-  border: 3px solid rgba(255, 255, 255, 0.8);
-  position: relative;
-}
-
-.character-head::before {
-  content: '';
-  position: absolute;
-  top: 4px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 12px;
-  height: 6px;
-  background: rgba(255, 192, 203, 0.3);
-  border-radius: 50%;
-}
-
-.character-eyes {
-  display: flex;
-  gap: 12px;
-  margin-top: 10px;
-}
-
-.eye {
-  font-size: 16px;
-  color: #1a1a1a;
-  animation: blink-cute 4s infinite;
-  position: relative;
-}
-
-.eye::after {
-  content: '';
-  position: absolute;
-  top: -2px;
-  right: -1px;
-  width: 4px;
-  height: 4px;
-  background: white;
-  border-radius: 50%;
-}
-
-@keyframes blink-cute {
-  0%, 46%, 50%, 100% {
-    opacity: 1;
-    transform: scaleY(1);
-  }
-  48% {
-    opacity: 0.3;
-    transform: scaleY(0.1);
-  }
-}
-
-.character-smile {
-  font-size: 18px;
-  color: #ff6b9d;
-  margin-top: -3px;
-  animation: smile-wiggle 2s ease-in-out infinite;
-}
-
-@keyframes smile-wiggle {
-  0%, 100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.1);
-  }
-}
-
-.character-camera {
-  font-size: 42px;
-  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.2));
-  animation: camera-bounce 1s ease-in-out infinite;
-}
-
-@keyframes camera-bounce {
-  0%, 100% {
-    transform: translateY(0) rotate(-8deg) scale(1);
-  }
-  50% {
-    transform: translateY(-4px) rotate(8deg) scale(1.05);
-  }
+.timeslip-icon {
+  width: 28px;
+  height: 28px;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.15));
 }
 
 .floating-btn-text {
-  font-size: 12px;
-  font-weight: 800;
+  font-size: 10px;
+  font-weight: 600;
   color: white;
+  letter-spacing: 0.3px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
   text-transform: uppercase;
-  letter-spacing: 1px;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  margin-top: 4px;
-  animation: text-glow 2s ease-in-out infinite;
-  background: linear-gradient(90deg, #fff 0%, #ffc0cb 50%, #fff 100%);
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-@keyframes text-glow {
-  0%, 100% {
-    background-position: 0% center;
-  }
-  50% {
-    background-position: 100% center;
-  }
 }
 
 @media (max-width: 768px) {
   .floating-timeslip-btn {
-    width: 100px;
-    height: 100px;
-    right: 20px;
-    bottom: 20px;
+    width: 64px;
+    height: 64px;
+    right: 16px;
+    bottom: 16px;
   }
 
-  .character-head {
-    width: 36px;
-    height: 36px;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-  }
-
-  .character-head::before {
-    width: 8px;
-    height: 4px;
-    top: 3px;
-  }
-
-  .character-eyes {
-    gap: 8px;
-    margin-top: 8px;
-  }
-
-  .eye {
-    font-size: 12px;
-  }
-
-  .eye::after {
-    width: 3px;
-    height: 3px;
-  }
-
-  .character-smile {
-    font-size: 14px;
-  }
-
-  .character-camera {
-    font-size: 30px;
+  .timeslip-icon {
+    width: 24px;
+    height: 24px;
   }
 
   .floating-btn-text {
     font-size: 9px;
-    letter-spacing: 0.5px;
   }
 
   .travel-page {

@@ -113,15 +113,52 @@ export default function TimeSlip({ onClose }) {
     setTimeout(() => setStep('compare'), 600);
   };
 
-  const startAnalysis = () => {
+  const startAnalysis = async () => {
     setStep('analyzing');
-    const score = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
-    setRandomScore(score);
-    const foundFeedback = selectedConcept.feedbacks.find(f => score >= f.range[0] && score <= f.range[1]);
-    setFeedback(foundFeedback ? foundFeedback.text : "TRY AGAIN.");
-    setTimeout(() => {
-      setStep('result');
-    }, 2500);
+
+    try {
+      // AI 서버에 이미지 전송
+      const formData = new FormData();
+
+      // userImage를 Blob으로 변환
+      const response = await fetch(userImage);
+      const blob = await response.blob();
+      formData.append('image', blob, 'user-photo.jpg');
+      formData.append('reference_image', selectedConcept.scenes[currentSceneIndex].img);
+
+      // AI 서버 호출
+      const apiUrl = import.meta.env.VITE_AI_SERVER_URL || 'http://localhost:8000';
+      const aiResponse = await fetch(`${apiUrl}/api/analyze-sync`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!aiResponse.ok) {
+        throw new Error('AI 분석 실패');
+      }
+
+      const data = await aiResponse.json();
+      const score = data.score || Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+
+      setRandomScore(score);
+      const foundFeedback = selectedConcept.feedbacks.find(f => score >= f.range[0] && score <= f.range[1]);
+      setFeedback(foundFeedback ? foundFeedback.text : "TRY AGAIN.");
+
+      setTimeout(() => {
+        setStep('result');
+      }, 1000);
+    } catch (error) {
+      console.error('AI 분석 에러:', error);
+      // 에러 발생 시 랜덤 점수 사용
+      const score = Math.floor(Math.random() * (99 - 85 + 1)) + 85;
+      setRandomScore(score);
+      const foundFeedback = selectedConcept.feedbacks.find(f => score >= f.range[0] && score <= f.range[1]);
+      setFeedback(foundFeedback ? foundFeedback.text : "TRY AGAIN.");
+
+      setTimeout(() => {
+        setStep('result');
+      }, 1000);
+    }
   };
 
   useEffect(() => {

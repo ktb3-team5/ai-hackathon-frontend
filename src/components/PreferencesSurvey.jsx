@@ -51,7 +51,7 @@ const TRAVEL_STYLES = [
   },
 ];
 
-const AGE_RANGES = ["10대", "20대", "30대", "40대", "50대", "기타"];
+const AGE_RANGES = ["Teens", "20s", "30s", "40s", "50s", "Other"];
 
 export default function PreferencesSurvey({ onComplete }) {
   const [step, setStep] = useState(0);
@@ -175,14 +175,14 @@ export default function PreferencesSurvey({ onComplete }) {
           </div>
         )}
 
-        {/* STEP 1 – 성별 + 연령대 */}
+        {/* STEP 1 – Gender + Age Range */}
         {step === 1 && (
           <div className="survey-content step-one">
-            <h2 className="survey-title">성별, 연령대를 선택해주세요.</h2>
+            <h2 className="survey-title">Please select your gender and age range.</h2>
             <p className="survey-subtitle">
-              선택하신 정보를 기반으로
+              We'll recommend personalized travel destinations
               <br />
-              맞춤 여행지를 추천해드려요.
+              based on your selection.
             </p>
 
             <div className="gender-options">
@@ -197,7 +197,7 @@ export default function PreferencesSurvey({ onComplete }) {
                   <div className="gender-icon">
                     {g === "male" ? "👨" : "👩"}
                   </div>
-                  <span>{g === "male" ? "남자" : "여자"}</span>
+                  <span>{g === "male" ? "Male" : "Female"}</span>
                 </button>
               ))}
             </div>

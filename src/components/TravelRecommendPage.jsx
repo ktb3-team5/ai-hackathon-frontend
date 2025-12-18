@@ -3,7 +3,7 @@ import "../styles/TravelRecommendPage.css";
 import { RESTAURANT_DATA } from "../data/restaurants";
 import { api } from "../services/api";
 
-export default function TravelRecommendPage({ userPreferences, selectedMediaId, onBack, onOpenTimeSlip }) {
+export default function TravelRecommendPage({ userPreferences, selectedMediaId, selectedMediaTitle, onBack, onOpenTimeSlip }) {
   const [destinations, setDestinations] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -18,12 +18,14 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
     userPreferences?.birthYear &&
     new Date().getFullYear() - parseInt(userPreferences.birthYear);
 
-  const [likedIds, setLikedIds] = useState(() => new Set());
+  const [likedIds, setLikedIds] = useState(() => []); // 배열로 변경하여 순서 유지
   const [visibleIds, setVisibleIds] = useState(() => new Set());
+  const [isReordering, setIsReordering] = useState(false);
 
   const [activeCardId, setActiveCardId] = useState(null);
 
   const teamReviewRef = useRef(null);
+  const cardRefs = useRef({});
 
   useEffect(() => {
     // 선택한 미디어의 여행지 추천 가져오기
@@ -35,6 +37,10 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
       try {
         setLoading(true);
         const data = await api.getTop3Destinations(selectedMediaId);
+        console.log('🖼️ [TravelRecommendPage] Destinations data:', data);
+        data.forEach((dest, idx) => {
+          console.log(`🖼️ [${idx}] Name: ${dest.name}, ImageURL: ${dest.imageUrl}`);
+        });
         setDestinations(data);
       } catch (error) {
         console.error('Failed to fetch destinations:', error);
@@ -106,31 +112,68 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
     item.locations ? item.locations[0].address : item.location;
 
   const toggleLike = (id) => {
-    setLikedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) {
-        next.delete(id);
-      } else {
-        next.add(id);
+    // FLIP: First - 현재 위치 저장
+    const cardElements = document.querySelectorAll('.restaurant-card');
+    const positions = new Map();
+    cardElements.forEach(el => {
+      const cardId = el.getAttribute('data-card-id');
+      if (cardId) {
+        positions.set(cardId, el.getBoundingClientRect());
       }
-      return next;
+    });
+
+    setLikedIds((prev) => {
+      const index = prev.indexOf(id);
+      if (index > -1) {
+        // 좋아요 취소: 배열에서 제거
+        return prev.filter(likedId => likedId !== id);
+      } else {
+        // 좋아요 추가: 배열 맨 앞에 추가
+        return [id, ...prev];
+      }
+    });
+
+    // FLIP: Last, Invert, Play
+    requestAnimationFrame(() => {
+      cardElements.forEach(el => {
+        const cardId = el.getAttribute('data-card-id');
+        if (cardId && positions.has(cardId)) {
+          const oldPos = positions.get(cardId);
+          const newPos = el.getBoundingClientRect();
+
+          const deltaX = oldPos.left - newPos.left;
+          const deltaY = oldPos.top - newPos.top;
+
+          if (deltaX !== 0 || deltaY !== 0) {
+            // Invert
+            el.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            el.style.transition = 'none';
+
+            // Play
+            requestAnimationFrame(() => {
+              el.style.transition = 'transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+              el.style.transform = 'translate(0, 0)';
+            });
+          }
+        }
+      });
     });
   };
 
-  const isLiked = (id) => likedIds.has(id);
+  const isLiked = (id) => likedIds.includes(id);
   const isVisible = (id) => visibleIds.has(id);
 
   const sortByLiked = (list) => {
-    const liked = [];
-    const rest = [];
-    list.forEach((item) => {
-      if (isLiked(item.id)) {
-        liked.push(item);
-      } else {
-        rest.push(item);
-      }
-    });
-    return [...liked, ...rest];
+    // 좋아요하지 않은 카드들 (원래 순서 유지)
+    const notLiked = list.filter(item => !isLiked(item.id));
+
+    // 좋아요한 카드들 (좋아요 누른 순서대로)
+    const liked = likedIds
+      .map(likedId => list.find(item => item.id === likedId))
+      .filter(Boolean); // undefined 제거
+
+    // 좋아요한 카드들을 앞에, 나머지는 원래 순서로
+    return [...liked, ...notLiked];
   };
 
   return (
@@ -153,7 +196,7 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
 
         <p className="travel-label">Content-based travel picks</p>
         <h1 className="travel-title">
-          <span className="travel-title-main">Black & White Chef</span>
+          <span className="travel-title-main">{selectedMediaTitle || 'K-Content'}</span>
           <span className="travel-title-sub"> fans,</span>
           <br />
           try this Korea trip.
@@ -190,25 +233,31 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
             {destinations.map((destination, idx) => (
               <article
                 key={idx}
-                className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
-                ref={(el) => revealRefs.current.push(el)}
+                className="restaurant-card"
               >
-                <div className="restaurant-card-header">
-                  <span className="restaurant-chip">RECOMMENDED</span>
+                <div className="restaurant-thumb">
+                  <img
+                    src={destination.imageUrl || '/api/images/destinations/주문진영진해변방사제.png'}
+                    alt={destination.name}
+                    onLoad={() => console.log('✅ Image loaded:', destination.imageUrl)}
+                    onError={(e) => {
+                      console.error('❌ Image failed to load:', destination.imageUrl);
+                      e.target.src = '/api/images/destinations/주문진영진해변방사제.png'; // fallback
+                    }}
+                  />
                 </div>
 
-                <p className="restaurant-name">{destination.name}</p>
-                <p className="restaurant-location">{destination.address}</p>
-                {destination.description && (
-                  <p className="restaurant-desc">{destination.description}</p>
-                )}
+                <div className="restaurant-card-body">
+                  <div className="restaurant-card-header">
+                    <span className="restaurant-chip">RECOMMENDED</span>
+                  </div>
 
-                <button
-                  className="restaurant-map-btn"
-                  onClick={() => openGoogleMap(destination.name, destination.address)}
-                >
-                  🗺️ Open in Google Maps
-                </button>
+                  <p className="restaurant-name">{destination.name}</p>
+                  <p className="restaurant-location">{destination.address}</p>
+                  {destination.description && (
+                    <p className="restaurant-desc">{destination.description}</p>
+                  )}
+                </div>
               </article>
             ))}
           </div>
@@ -227,9 +276,10 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
             {sortByLiked(topRestaurants).map((item, idx) => (
               <article
                 key={item.id}
+                data-card-id={`top-${item.id}`}
                 className={`restaurant-card reveal delay-${(idx % 4) + 1}${
                   isVisible(`top-${item.id}`) ? " is-visible" : ""
-                }`}
+                }${isLiked(item.id) ? " is-liked-card" : ""}`}
                 data-reveal-id={`top-${item.id}`}
                 onClick={() => setActiveCardId(item.id)}
               >
@@ -243,7 +293,7 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
                     type="button"
                     className={`like-btn${isLiked(item.id) ? " is-liked" : ""}`}
                     onClick={(e) => {
-                      e.stopPropagation(); // 🔥 핵심
+                      e.stopPropagation();
                       toggleLike(item.id);
                     }}
                     aria-pressed={isLiked(item.id)}
@@ -266,7 +316,6 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
                     />
                   </button>
 
-                  {/* 🔥 인카드 미니 모달 */}
                   {activeCardId === item.id && (
                     <div
                       className="card-overlay-modal"
@@ -289,7 +338,7 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
                         Visiting 경복궁 immerses you in the enchanting world of
                         해를 품은 달, where the elegant architecture and serene
                         gardens evoke the romance and intrigue of historical
-                        drama. Strolling through its grounds, you’ll feel
+                        drama. Strolling through its grounds, you'll feel
                         connected to the poignant emotions of the characters.
                       </p>
                     </div>
@@ -302,25 +351,6 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
 
                 <p className="restaurant-name">{item.restaurant}</p>
                 <p className="restaurant-location">{getAddress(item)}</p>
-
-                <div className="restaurant-map-actions">
-                  <button
-                    className="restaurant-map-btn"
-                    onClick={() =>
-                      openGoogleMap(item.restaurant, getAddress(item))
-                    }
-                  >
-                    🗺️ Google Maps
-                  </button>
-                  <button
-                    className="restaurant-map-btn"
-                    onClick={() =>
-                      openGoogleMap(item.restaurant, getAddress(item))
-                    } // 여기에 백엔드에서 받아온 구글 뷰 링크 넣어야됌.
-                  >
-                    🗺️ Google Map Views
-                  </button>
-                </div>
               </article>
             ))}
           </div>
@@ -345,9 +375,10 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
             {sortByLiked(ourPickRestaurants).map((item, idx) => (
               <article
                 key={item.id}
+                data-card-id={`our-${item.id}`}
                 className={`restaurant-card reveal delay-${(idx % 4) + 1}${
                   isVisible(`our-${item.id}`) ? " is-visible" : ""
-                }`}
+                }${isLiked(item.id) ? " is-liked-card" : ""}`}
                 data-reveal-id={`our-${item.id}`}
               >
                 <div className="restaurant-thumb">
@@ -387,25 +418,6 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
 
                 <p className="restaurant-name">{item.restaurant}</p>
                 <p className="restaurant-location">{getAddress(item)}</p>
-
-                <div className="restaurant-map-actions">
-                  <button
-                    className="restaurant-map-btn"
-                    onClick={() =>
-                      openGoogleMap(item.restaurant, getAddress(item))
-                    }
-                  >
-                    🗺️ Google Maps
-                  </button>
-                  <button
-                    className="restaurant-map-btn"
-                    onClick={() =>
-                      openGoogleMap(item.restaurant, getAddress(item))
-                    } // 여기에 백엔드에서 받아온 구글 뷰 링크 넣어야됌.
-                  >
-                    🗺️ Google Map Views
-                  </button>
-                </div>
               </article>
             ))}
           </div>
@@ -430,9 +442,10 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
             {sortByLiked(nearbyRestaurants).map((item, idx) => (
               <article
                 key={item.id}
+                data-card-id={`near-${item.id}`}
                 className={`restaurant-card reveal delay-${(idx % 4) + 1}${
                   isVisible(`near-${item.id}`) ? " is-visible" : ""
-                }`}
+                }${isLiked(item.id) ? " is-liked-card" : ""}`}
                 data-reveal-id={`near-${item.id}`}
               >
                 <div className="restaurant-thumb">
@@ -472,25 +485,6 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
 
                 <p className="restaurant-name">{item.restaurant}</p>
                 <p className="restaurant-location">{getAddress(item)}</p>
-
-                <div className="restaurant-map-actions">
-                  <button
-                    className="restaurant-map-btn"
-                    onClick={() =>
-                      openGoogleMap(item.restaurant, getAddress(item))
-                    }
-                  >
-                    🗺️ Google Maps
-                  </button>
-                  <button
-                    className="restaurant-map-btn"
-                    onClick={() =>
-                      openGoogleMap(item.restaurant, getAddress(item))
-                    } // 여기에 백엔드에서 받아온 구글 뷰 링크 넣어야됌.
-                  >
-                    🗺️ Google Map Views
-                  </button>
-                </div>
               </article>
             ))}
           </div>
@@ -524,16 +518,9 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
               className="chat-avatar"
             />
             <div className="chat-bubble">
-              <h4>🍜 프론트엔드 개발자 추천</h4>
+              <h4>🍜 Frontend Developer's Pick</h4>
               <p>
-                "화면 너머의 감동이 현실로 전이되는 순간" <br /> "드라마 속
-                주인공이 눈물을 흘리던 그 자리에 앉아보니, 단순히 예쁜 장소를
-                넘어선 서사가 느껴졌어요. 특히 이곳은 조명 설계가 극 중 분위기와
-                완벽하게 일치해서, 오후 4시쯤 방문하면 화면 속 그 필터가 그대로
-                입혀진 듯한 묘한 기분을 느낄 수 있습니다. 혼자 여행하시는
-                분들이라면 구석 창가 자리를 추천해요. 이어폰으로 드라마 OST를
-                들으며 김밥을 먹는 것만으로도 완벽한 '과몰입' 여행이 완성될
-                거예요."
+                "When screen emotions become reality" <br /> "Sitting in the exact spot where the drama's protagonist shed tears, I felt a narrative that went beyond just a pretty location. The lighting design here perfectly matches the show's atmosphere—visit around 4 PM and you'll experience that same cinematic filter in real life. For solo travelers, I recommend the corner window seat. Just eating kimbap while listening to the drama's OST through your earphones creates the perfect 'immersive' travel experience."
               </p>
             </div>
           </div>
@@ -541,16 +528,10 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           {/* RIGHT */}
           <div className="chat-item right">
             <div className="chat-bubble">
-              <h4>🍷 디자이너 Pick</h4>
+              <h4>🍷 Designer's Pick</h4>
               <p>
-                "렌즈에 담기는 모든 각도가 예술인 공간" <br />
-                "직업병일지 모르겠지만, 공간의 컬러 팔레트와 가구 배치를 먼저
-                보게 되더라고요. 이곳은 현대적인 미니멀리즘과 드라마 특유의
-                차가운 톤이 정말 세련되게 믹스되어 있습니다. 특히 통창으로
-                들어오는 자연광이 내부의 노출 콘크리트 벽에 닿을 때의 그 질감은
-                사진으로 다 담기지 않을 정도예요. SNS에 올릴 '인생샷'을
-                원하신다면 블루 아워(일몰 직후)에 맞춰 가보세요. 보정 없이도
-                화보 같은 결과물을 얻으실 겁니다."
+                "A space where every angle is art" <br />
+                "Call it occupational hazard, but I immediately noticed the color palette and furniture arrangement. This place elegantly blends modern minimalism with the drama's signature cool tones. The texture when natural light through the floor-to-ceiling windows hits the exposed concrete walls is beyond what photos can capture. If you want that perfect Instagram shot, visit during blue hour (right after sunset). You'll get magazine-quality results without any filters."
               </p>
             </div>
             <img
@@ -568,16 +549,10 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
               className="chat-avatar"
             />
             <div className="chat-bubble">
-              <h4>🔥 백엔드 개발자 추천</h4>
+              <h4>🔥 Backend Developer's Pick</h4>
               <p>
-                "동선 최적화와 만족도, 두 마리 토끼를 잡는 전략적 선택" <br />
-                "여행에서 가장 중요한 건 '시간 대비 경험의 밀도'라고 생각합니다.
-                이 촬영지는 지하철역에서 도보 5분 거리라는 압도적인 접근성을
-                가지고 있고, 여기서 시작해 근처 유명 카페와 소품샵까지 이어지는
-                동선이 매우 깔끔해요. 주변 맛집 데이터와 비교해 봐도 리뷰 평점이
-                꾸준히 높은 곳이라 실패 확률이 낮습니다. 효율적인 K-콘텐츠
-                투어를 계획 중인 외국인 친구에게 제가 가장 먼저 추천해주는
-                '검증된' 루트입니다."
+                "Strategic choice for optimized routing and maximum satisfaction" <br />
+                "I believe the most important thing in travel is 'experience density per time spent'. This filming location has overwhelming accessibility—just 5 minutes walk from the subway station. The route connecting nearby famous cafes and shops is perfectly optimized. Comparing with surrounding restaurant data, this place consistently maintains high review ratings, so failure rate is low. This is the 'verified' route I recommend first to my international friends planning an efficient K-content tour."
               </p>
             </div>
           </div>
@@ -591,19 +566,11 @@ export default function TravelRecommendPage({ userPreferences, selectedMediaId, 
           className="floating-timeslip-btn"
           aria-label="Open Time Slip"
         >
-          <div className="floating-btn-character">
-            <div className="character-body">
-              <div className="character-head">
-                <div className="character-eyes">
-                  <span className="eye">•</span>
-                  <span className="eye">•</span>
-                </div>
-                <div className="character-smile">⌣</div>
-              </div>
-              <div className="character-camera">📸</div>
-            </div>
-          </div>
-          <span className="floating-btn-text">Time Slip!</span>
+          <svg className="timeslip-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z"
+                  fill="white" stroke="white" strokeWidth="1.5" strokeLinejoin="round"/>
+          </svg>
+          <span className="floating-btn-text">Time Slip</span>
         </button>
       )}
     </section>

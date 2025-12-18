@@ -5,11 +5,11 @@ export default function Hero({ isPersonalized, userPreferences }) {
     if (isPersonalized && userPreferences) {
       const age =
         new Date().getFullYear() - parseInt(userPreferences.birthYear);
-      const genderText = userPreferences.gender === "female" ? "여성" : "남성";
+      const genderText = userPreferences.gender === "female" ? "Female" : "Male";
       return {
-        main: `${age}대 ${genderText}을 위한`,
-        sub: "맞춤형 K-콘텐츠 여행지",
-        desc: "당신의 취향에 딱 맞는 한국 여행지를 추천해드려요",
+        main: `For ${genderText} in ${age}s`,
+        sub: "Tailored K-Content Travel",
+        desc: "We recommend Korean travel destinations that perfectly match your taste",
       };
     }
     return {

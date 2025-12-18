@@ -14,7 +14,7 @@ export default function App() {
   const [userPreferences, setUserPreferences] = useState(null);
   const [showTravelPage, setShowTravelPage] = useState(false);
   const [showTimeSlip, setShowTimeSlip] = useState(false);
-  const [selectedMediaId, setSelectedMediaId] = useState(null);
+  const [selectedMedia, setSelectedMedia] = useState(null);
 
   const handleSurveyComplete = (preferences) => {
     setUserPreferences(preferences);
@@ -36,7 +36,8 @@ export default function App() {
       <div>
         <TravelRecommendPage
           userPreferences={userPreferences}
-          selectedMediaId={selectedMediaId}
+          selectedMediaId={selectedMedia?.id}
+          selectedMediaTitle={selectedMedia?.title}
           onBack={() => setShowTravelPage(false)}
           onOpenTimeSlip={() => setShowTimeSlip(true)}
         />
@@ -57,8 +58,8 @@ export default function App() {
           setShowTravelPage(true);
         }} 
       />*/}
-      <WorkationSection onSelectImage={(mediaId) => {
-        setSelectedMediaId(mediaId);
+      <WorkationSection onSelectImage={(media) => {
+        setSelectedMedia(media);
         setShowTravelPage(true);
       }} />
     </div>
