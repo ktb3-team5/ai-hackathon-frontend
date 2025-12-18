@@ -6,6 +6,7 @@ import Canvas from "./components/Canvas";
 import KoreanCarousel from "./components/KoreanCarousel";
 import PreferencesSurvey from "./components/PreferencesSurvey";
 import TravelRecommendPage from "./components/TravelRecommendPage";
+import WorkationSection from "./components/WorkationSection";
 
 export default function App() {
   const [showSurvey, setShowSurvey] = useState(true);
@@ -25,7 +26,7 @@ export default function App() {
   }
 
   // 참여 여부에 따라 다른 컨텐츠 표시
-  const isPersonalized = userPreferences?.participated === true;
+  // const isPersonalized = userPreferences?.participated === true;
 
   if (showTravelPage) {
     return (
@@ -41,15 +42,16 @@ export default function App() {
   return (
     <div>
       {/* 설문 완료 후 기본 홈 화면 */}
-      <Hero isPersonalized={isPersonalized} userPreferences={userPreferences} />
+      {/* <Hero isPersonalized={isPersonalized} userPreferences={userPreferences} />
       <Canvas />
       <KoreanCarousel
         isPersonalized={isPersonalized}
         userPreferences={userPreferences}
         onSelectContent={() => {
           setShowTravelPage(true);
-        }}
-      />
+        }} 
+      />*/}
+      <WorkationSection onSelectImage={() => setShowTravelPage(true)} />
     </div>
   );
 }

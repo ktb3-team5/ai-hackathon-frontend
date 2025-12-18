@@ -1,0 +1,221 @@
+.workation {
+  position: relative;
+  padding: 0 0 70px;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+/* =====================
+   SEARCH BAR
+===================== */
+
+.workation-search {
+  margin: 32px auto 0;
+  max-width: 520px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.workation-search-input {
+  flex: 1;
+  height: 56px;
+  padding: 0 20px;
+  border-radius: 999px;
+  border: 2px solid #e5e7eb;
+  font-size: 16px;
+  background: #ffffff;
+  transition: all 0.25s ease;
+}
+
+.workation-search-input::placeholder {
+  color: #9ca3af;
+}
+
+.workation-search-input:focus {
+  outline: none;
+  border-color: #0baeff;
+  box-shadow: 0 0 0 4px rgba(11, 174, 255, 0.15);
+}
+
+.workation-search-btn {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.workation-search-btn:hover {
+  box-shadow: 0 8px 20px rgba(11, 174, 255, 0.4);
+}
+
+/* =====================
+   IMAGE MARQUEE
+===================== */
+
+.image-marquee {
+  width: 100%;
+  overflow-x: hidden;
+  overscroll-behavior-x: contain;
+  padding: 8px 0;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    rgba(11, 174, 255, 0.06) 45%,
+    #ffffff 100%
+  );
+}
+
+.image-marquee:hover {
+  overflow-x: auto;
+  cursor: grab;
+  padding-bottom: 12px;
+}
+
+.image-marquee:hover .image-track,
+.image-marquee.is-dragging .image-track {
+  animation-play-state: paused;
+}
+
+.image-marquee.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+}
+
+.image-marquee.is-dragging .image-item {
+  pointer-events: none;
+}
+
+.image-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 40s linear infinite;
+  will-change: transform;
+}
+
+/* 스크롤 UX 개선 */
+.image-marquee::-webkit-scrollbar {
+  height: 6px;
+}
+
+.image-marquee::-webkit-scrollbar-thumb {
+  background: rgba(11, 174, 255, 0.4);
+  border-radius: 999px;
+}
+
+.image-marquee::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.image-item {
+  position: relative;
+  flex: 0 0 auto;
+  width: 360px;
+  margin-right: 20px;
+
+  /* ✅ 핵심: 직사각형 비율 고정 */
+  aspect-ratio: 2 / 3;
+
+  overflow: hidden;
+  border-radius: 16px;
+  transition: transform 0.25s ease;
+  outline: none;
+  padding: 0;
+  background: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    rgba(11, 174, 255, 0.06) 45%,
+    #ffffff 100%
+  );
+}
+
+.image-item:focus,
+.image-item:focus-visible,
+.image-item:active {
+  outline: none;
+  box-shadow: none;
+}
+
+.image-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 0.25s ease;
+}
+
+.image-item:hover {
+  transform: scale(1.03);
+  border: none;
+  outline: none;
+}
+
+.image-item:hover img {
+  transform: scale(1.05);
+  border: none;
+}
+
+/* 무한 루프 핵심 */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+/* =====================
+   TEXT
+===================== */
+
+.workation-text {
+  margin-top: 40px;
+  text-align: center;
+}
+
+.workation-sub {
+  font-size: 23px;
+  line-height: 1.6;
+  color: #111;
+  margin-bottom: 32px;
+}
+
+.workation-title {
+  font-size: 56px;
+  font-weight: 500;
+  letter-spacing: 0.28em;
+  color: #2f66ff;
+}
+
+/* =====================
+   MOBILE
+===================== */
+
+@media (max-width: 768px) {
+  .workation-search {
+    padding: 0 20px;
+  }
+
+  .workation-search-input {
+    height: 52px;
+  }
+
+  .workation-search-btn {
+    width: 52px;
+    height: 52px;
+  }
+}
+
+@media (max-width: 768px) {
+  .image-item {
+    width: 280px;
+  }
+
+  .workation-title {
+    font-size: 36px;
+    letter-spacing: 0.18em;
+  }
+}

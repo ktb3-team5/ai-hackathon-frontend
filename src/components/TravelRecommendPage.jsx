@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import "../styles/TravelRecommendPage.css";
-import RestaurantModal from "./RestaurantModal";
 import { RESTAURANT_DATA } from "../data/restaurants";
 
 export default function TravelRecommendPage({ userPreferences, onBack }) {
-  // 흑백요리사 여행/맛집 추천 전용 페이지
+  // Travel and restaurant recommendations for Black & White Chef fans
   const allRestaurants = [...RESTAURANT_DATA.백수저, ...RESTAURANT_DATA.흑수저];
 
   const topRestaurants = allRestaurants.slice(0, 5);
@@ -15,78 +14,115 @@ export default function TravelRecommendPage({ userPreferences, onBack }) {
     userPreferences?.birthYear &&
     new Date().getFullYear() - parseInt(userPreferences.birthYear);
 
-  const showRestaurantButton = true;
-
-  const [isRestaurantModalOpen, setIsRestaurantModalOpen] = useState(false);
+  /** 🔥 reveal 대상 refs */
+  const revealRefs = useRef([]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.15 }
+    );
+
+    revealRefs.current.forEach((el) => el && observer.observe(el));
+
+    return () => observer.disconnect();
   }, []);
+
+  /** ✅ Google Maps 열기 (식당명 + 주소) */
+  const openGoogleMap = (restaurantName, address) => {
+    if (!restaurantName && !address) return;
+
+    const query = encodeURIComponent(
+      `${restaurantName ?? ""} ${address ?? ""}`.trim()
+    );
+
+    window.open(
+      `https://www.google.com/maps/search/?api=1&query=${query}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
+  };
+
+  /** 주소 안전 추출 */
+  const getAddress = (item) =>
+    item.locations ? item.locations[0].address : item.location;
 
   return (
     <section className="travel-page">
-      <header className="travel-header">
+      <header
+        className="travel-header reveal"
+        ref={(el) => revealRefs.current.push(el)}
+      >
         {onBack && (
           <button className="travel-back-btn" onClick={onBack}>
-            ← 뒤로가기
+            ← Back
           </button>
         )}
 
-        <p className="travel-label">콘텐츠 기반 여행 추천</p>
+        <p className="travel-label">Content-based travel picks</p>
         <h1 className="travel-title">
-          <span className="travel-title-main">흑백요리사</span>
-          <span className="travel-title-sub">를 좋아하는 당신에게,</span>
+          <span className="travel-title-main">Black & White Chef</span>
+          <span className="travel-title-sub"> fans,</span>
           <br />
-          이런 한국 여행은 어떠세요?
+          try this Korea trip.
         </h1>
 
         {age && (
           <p className="travel-meta">
-            {age}대 {userPreferences.gender === "female" ? "여성" : "남성"}{" "}
-            여행자를 위한 추천 코스예요.
+            A {age}s {userPreferences.gender === "female" ? "female" : "male"}{" "}
+            traveler course tailored for you.
           </p>
         )}
 
         <p className="travel-desc">
-          K-콘텐츠가 촉발한 감정을 그대로 이어갈 수 있는 실제 여행과 맛집 루트를
-          큐레이션했어요.
+          We curated real travel and food routes to extend the emotion sparked
+          by K-content.
         </p>
-        <div className="travel-theme-badge">
-          <span className="badge-label">여행 테마</span>
-          <span className="badge-text">셰프 맛집 성지순례</span>
-        </div>
       </header>
 
       {/* 1. 방송 속 맛집 TOP 5 */}
       <section className="travel-section">
-        <h2 className="section-title">방송 속 화제의 맛집 TOP 5</h2>
+        <h2 className="section-title">Top 5 restaurants from the show</h2>
         <p className="section-subtitle">
-          흑백요리사에 등장한 레스토랑 중 화제성이 높은 곳만 추려서 보여드려요.
+          Only the most talked-about spots that appeared on Black & White Chef.
         </p>
 
         <div className="card-row">
-          {topRestaurants.map((item) => (
-            <article key={item.id} className="restaurant-card">
-              {/* 🔽 썸네일 추가 */}
+          {topRestaurants.map((item, idx) => (
+            <article
+              key={item.id}
+              className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
+              ref={(el) => revealRefs.current.push(el)}
+            >
               <div className="restaurant-thumb">
                 <img
-                  src={`https://picsum.photos/seed/${item.id}/400/260`}
+                  src={`https://picsum.photos/seed/${item.id}/500/320`}
                   alt={item.restaurant}
                 />
               </div>
+
               <div className="restaurant-card-header">
                 <span className="restaurant-chip">TOP PICK</span>
-                <span className="restaurant-chef">셰프 {item.chef}</span>
+                <span className="restaurant-chef">Chef {item.chef}</span>
               </div>
-              <h3 className="restaurant-name">{item.restaurant}</h3>
-              <p className="restaurant-location">
-                {item.locations ? item.locations[0].address : item.location}
-              </p>
+
+              <p className="restaurant-name">{item.restaurant}</p>
+              <p className="restaurant-location">{getAddress(item)}</p>
+
               <button
                 className="restaurant-map-btn"
-                onClick={() => setIsRestaurantModalOpen(true)}
+                onClick={() => openGoogleMap(item.restaurant, getAddress(item))}
               >
-                🗺️ 지도에서 보기
+                🗺️ Open in Google Maps
               </button>
             </article>
           ))}
@@ -95,35 +131,38 @@ export default function TravelRecommendPage({ userPreferences, onBack }) {
 
       {/* 2. 우리가 추천하는 코스 맛집 5곳 */}
       <section className="travel-section">
-        <h2 className="section-title">여행 코스로 묶기 좋은 추천 맛집 5곳</h2>
+        <h2 className="section-title">5 restaurants perfect for a course</h2>
         <p className="section-subtitle">
-          같은 동선 안에서 여러 곳을 들를 수 있도록, 코스로 묶기 좋은 레스토랑만
-          골랐어요.
+          Chosen so you can visit multiple spots in one route.
         </p>
 
         <div className="card-row">
-          {ourPickRestaurants.map((item) => (
-            <article key={item.id} className="restaurant-card">
-              {/* 🔽 썸네일 추가 */}
+          {ourPickRestaurants.map((item, idx) => (
+            <article
+              key={item.id}
+              className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
+              ref={(el) => revealRefs.current.push(el)}
+            >
               <div className="restaurant-thumb">
                 <img
-                  src={`https://picsum.photos/seed/${item.id}/400/260`}
+                  src={`https://picsum.photos/seed/${item.id}/500/320`}
                   alt={item.restaurant}
                 />
               </div>
+
               <div className="restaurant-card-header">
-                <span className="restaurant-chip">코스 추천</span>
-                <span className="restaurant-chef">셰프 {item.chef}</span>
+                <span className="restaurant-chip">COURSE PICK</span>
+                <span className="restaurant-chef">Chef {item.chef}</span>
               </div>
-              <h3 className="restaurant-name">{item.restaurant}</h3>
-              <p className="restaurant-location">
-                {item.locations ? item.locations[0].address : item.location}
-              </p>
+
+              <p className="restaurant-name">{item.restaurant}</p>
+              <p className="restaurant-location">{getAddress(item)}</p>
+
               <button
                 className="restaurant-map-btn"
-                onClick={() => setIsRestaurantModalOpen(true)}
+                onClick={() => openGoogleMap(item.restaurant, getAddress(item))}
               >
-                🗺️ 지도에서 보기
+                🗺️ Open in Google Maps
               </button>
             </article>
           ))}
@@ -132,49 +171,121 @@ export default function TravelRecommendPage({ userPreferences, onBack }) {
 
       {/* 3. 주변에서 함께 가기 좋은 근처 맛집 5곳 */}
       <section className="travel-section">
-        <h2 className="section-title">
-          여행 중 근처에서 함께 가기 좋은 맛집 5곳
-        </h2>
+        <h2 className="section-title">5 nearby stops to drop by</h2>
         <p className="section-subtitle">
-          여행 동선 근처에 있어, 일정 사이에 가볍게 들르기 좋은 식당들이에요.
+          Easy stops near your route to slip in between activities.
         </p>
 
         <div className="card-row">
-          {nearbyRestaurants.map((item) => (
-            <article key={item.id} className="restaurant-card">
-              {/* 🔽 썸네일 추가 */}
+          {nearbyRestaurants.map((item, idx) => (
+            <article
+              key={item.id}
+              className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
+              ref={(el) => revealRefs.current.push(el)}
+            >
               <div className="restaurant-thumb">
                 <img
-                  src={`https://picsum.photos/seed/${item.id}/400/260`}
+                  src={`https://picsum.photos/seed/${item.id}/500/320`}
                   alt={item.restaurant}
                 />
               </div>
+
               <div className="restaurant-card-header">
-                <span className="restaurant-chip">근처 추천</span>
-                <span className="restaurant-chef">셰프 {item.chef}</span>
+                <span className="restaurant-chip">NEARBY</span>
+                <span className="restaurant-chef">Chef {item.chef}</span>
               </div>
-              <h3 className="restaurant-name">{item.restaurant}</h3>
-              <p className="restaurant-location">
-                {item.locations ? item.locations[0].address : item.location}
-              </p>
+
+              <p className="restaurant-name">{item.restaurant}</p>
+              <p className="restaurant-location">{getAddress(item)}</p>
+
               <button
                 className="restaurant-map-btn"
-                onClick={() => setIsRestaurantModalOpen(true)}
+                onClick={() => openGoogleMap(item.restaurant, getAddress(item))}
               >
-                🗺️ 지도에서 보기
+                🗺️ Open in Google Maps
               </button>
             </article>
           ))}
         </div>
       </section>
+      {/* 4. Team Picks – Chat Style Reviews */}
+      <section
+        className="team-review-section reveal"
+        ref={(el) => revealRefs.current.push(el)}
+      >
+        <h2 className="section-title center">Team Picks 💬</h2>
+        <p className="section-subtitle center">
+          Restaurants our team personally recommends.
+        </p>
 
-      {showRestaurantButton && (
-        <RestaurantModal
-          isOpen={isRestaurantModalOpen}
-          onClose={() => setIsRestaurantModalOpen(false)}
-          restaurants={RESTAURANT_DATA}
-        />
-      )}
+        <div className="chat-list">
+          {/* LEFT */}
+          <div className="chat-item left">
+            <img
+              src="/images/avatar.jpeg"
+              alt="team member"
+              className="chat-avatar"
+            />
+            <div className="chat-bubble">
+              <h4>🍜 프론트엔드 개발자 추천</h4>
+              <p>
+                "화면 너머의 감동이 현실로 전이되는 순간" <br /> "드라마 속
+                주인공이 눈물을 흘리던 그 자리에 앉아보니, 단순히 예쁜 장소를
+                넘어선 서사가 느껴졌어요. 특히 이곳은 조명 설계가 극 중 분위기와
+                완벽하게 일치해서, 오후 4시쯤 방문하면 화면 속 그 필터가 그대로
+                입혀진 듯한 묘한 기분을 느낄 수 있습니다. 혼자 여행하시는
+                분들이라면 구석 창가 자리를 추천해요. 이어폰으로 드라마 OST를
+                들으며 김밥을 먹는 것만으로도 완벽한 '과몰입' 여행이 완성될
+                거예요."
+              </p>
+            </div>
+          </div>
+
+          {/* RIGHT */}
+          <div className="chat-item right">
+            <div className="chat-bubble">
+              <h4>🍷 디자이너 Pick</h4>
+              <p>
+                "렌즈에 담기는 모든 각도가 예술인 공간" <br />
+                "직업병일지 모르겠지만, 공간의 컬러 팔레트와 가구 배치를 먼저
+                보게 되더라고요. 이곳은 현대적인 미니멀리즘과 드라마 특유의
+                차가운 톤이 정말 세련되게 믹스되어 있습니다. 특히 통창으로
+                들어오는 자연광이 내부의 노출 콘크리트 벽에 닿을 때의 그 질감은
+                사진으로 다 담기지 않을 정도예요. SNS에 올릴 '인생샷'을
+                원하신다면 블루 아워(일몰 직후)에 맞춰 가보세요. 보정 없이도
+                화보 같은 결과물을 얻으실 겁니다."
+              </p>
+            </div>
+            <img
+              src="/images/avatar.jpeg"
+              alt="team member"
+              className="chat-avatar"
+            />
+          </div>
+
+          {/* LEFT */}
+          <div className="chat-item left">
+            <img
+              src="/images/avatar2.jpeg"
+              alt="team member"
+              className="chat-avatar"
+            />
+            <div className="chat-bubble">
+              <h4>🔥 백엔드 개발자 추천</h4>
+              <p>
+                "동선 최적화와 만족도, 두 마리 토끼를 잡는 전략적 선택" <br />
+                "여행에서 가장 중요한 건 '시간 대비 경험의 밀도'라고 생각합니다.
+                이 촬영지는 지하철역에서 도보 5분 거리라는 압도적인 접근성을
+                가지고 있고, 여기서 시작해 근처 유명 카페와 소품샵까지 이어지는
+                동선이 매우 깔끔해요. 주변 맛집 데이터와 비교해 봐도 리뷰 평점이
+                꾸준히 높은 곳이라 실패 확률이 낮습니다. 효율적인 K-콘텐츠
+                투어를 계획 중인 외국인 친구에게 제가 가장 먼저 추천해주는
+                '검증된' 루트입니다."
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
     </section>
   );
 }

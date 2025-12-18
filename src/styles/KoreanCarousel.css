@@ -1,18 +1,18 @@
 .k-carousel {
   padding: 64px 48px 80px;
   border-top: 1px solid rgba(0, 0, 0, 0.04);
-  min-height: 100vh;
+  /* min-height: 100vh; */
 }
 
 .k-carousel--survey {
-  padding: 16px 0 0;
+  padding: 0;
   border-top: none;
   min-height: auto;
 }
 
 .k-carousel-header {
-  max-width: 1200px;
-  margin: 0 auto 40px;
+  /* max-width: 1239px; */
+  margin: 0 auto 100px;
   text-align: left;
 }
 
@@ -62,6 +62,7 @@
 
 .k-carousel-track-wrapper {
   overflow-x: auto;
+  padding-top: 16px;
   padding-bottom: 16px;
 }
 
@@ -96,7 +97,7 @@
 }
 
 .k-video-card:hover {
-  transform: translateY(-6px);
+  transform: translateY(-6px) scale(1.02);
   box-shadow: 0 20px 50px rgba(11, 174, 255, 0.18);
   border-color: rgba(11, 174, 255, 0.4);
 }

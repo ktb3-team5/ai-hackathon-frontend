@@ -2,8 +2,6 @@ import { useState } from "react";
 import "../styles/PreferencesSurvey.css";
 import KoreanCarousel from "./KoreanCarousel";
 
-const BIRTH_YEARS = Array.from({ length: 60 }, (_, i) => 2010 - i);
-
 const GENRES = [
   { id: "drama", label: "Drama", emoji: "🎭" },
   { id: "variety", label: "Variety Show", emoji: "🎪" },
@@ -52,11 +50,13 @@ const TRAVEL_STYLES = [
   },
 ];
 
+const AGE_RANGES = ["10대", "20대", "30대", "40대", "50대", "기타"];
+
 export default function PreferencesSurvey({ onComplete }) {
-  const [step, setStep] = useState(0); // 0: participation choice, 1~4: survey steps (step 4 = pick from top 10)
+  const [step, setStep] = useState(0);
   const [preferences, setPreferences] = useState({
-    participated: null, // true: participate, false: skip
-    birthYear: "",
+    participated: null,
+    ageRange: "",
     gender: "",
     genres: [],
     travelStyles: [],
@@ -64,60 +64,13 @@ export default function PreferencesSurvey({ onComplete }) {
     skipContentSelection: false,
   });
 
-  const handleBirthYearSelect = (year) => {
-    setPreferences({ ...preferences, birthYear: year });
-  };
-
-  const handleGenderSelect = (gender) => {
-    setPreferences({ ...preferences, gender });
-  };
-
-  const handleGenreToggle = (genreId) => {
-    const newGenres = preferences.genres.includes(genreId)
-      ? preferences.genres.filter((id) => id !== genreId)
-      : [...preferences.genres, genreId];
-    setPreferences({ ...preferences, genres: newGenres });
-  };
-
-  const handleTravelStyleToggle = (styleId) => {
-    const newStyles = preferences.travelStyles.includes(styleId)
-      ? preferences.travelStyles.filter((id) => id !== styleId)
-      : [...preferences.travelStyles, styleId];
-    setPreferences({ ...preferences, travelStyles: newStyles });
-  };
-
-  const handleSkipContentSelection = () => {
-    const updated = {
-      ...preferences,
-      selectedContent: null,
-      skipContentSelection: true,
-    };
-    setPreferences(updated);
-    // If "none" is chosen on the last step, finish immediately
-    onComplete(updated);
-  };
-
-  const handleParticipate = () => {
-    setPreferences({ ...preferences, participated: true });
-    setStep(1);
-  };
-
-  const handleSkip = () => {
-    onComplete({ ...preferences, participated: false });
-  };
-
   const handleNext = () => {
-    if (step < 4) {
-      setStep(step + 1);
-    } else {
-      onComplete(preferences);
-    }
+    if (step < 3) setStep(step + 1);
+    else onComplete(preferences);
   };
 
   const handleBack = () => {
-    if (step > 0) {
-      setStep(step - 1);
-    }
+    if (step > 0) setStep(step - 1);
   };
 
   const canProceed = () => {
@@ -125,17 +78,11 @@ export default function PreferencesSurvey({ onComplete }) {
       case 0:
         return true;
       case 1:
-        return preferences.birthYear !== "" && preferences.gender !== "";
+        return preferences.gender && preferences.ageRange;
       case 2:
         return preferences.genres.length > 0;
       case 3:
         return preferences.travelStyles.length > 0;
-      case 4:
-        // Can proceed when one of the top picks is chosen or the user skips
-        return (
-          preferences.selectedContent !== null ||
-          preferences.skipContentSelection === true
-        );
       default:
         return false;
     }
@@ -148,7 +95,7 @@ export default function PreferencesSurvey({ onComplete }) {
           <div className="survey-header">
             <span className="survey-badge">Spot On</span>
             <div className="survey-progress">
-              {[1, 2, 3, 4].map((s) => (
+              {[1, 2, 3].map((s) => (
                 <div
                   key={s}
                   className={`progress-dot ${s <= step ? "active" : ""}`}
@@ -158,6 +105,7 @@ export default function PreferencesSurvey({ onComplete }) {
           </div>
         )}
 
+        {/* STEP 0 */}
         {step === 0 && (
           <div className="survey-content welcome-step">
             <h2 className="survey-title welcome-title">
@@ -176,95 +124,84 @@ export default function PreferencesSurvey({ onComplete }) {
             <div className="welcome-options">
               <button
                 className="welcome-btn participate"
-                onClick={handleParticipate}
+                onClick={() => {
+                  setPreferences({ ...preferences, participated: true });
+                  setStep(1);
+                }}
               >
                 <div className="welcome-icon">✨</div>
-                <div className="welcome-text">
-                  <span className="welcome-label">Yes, let's do it!</span>
-                  <span className="welcome-desc">I want a personal pick</span>
+                <div>
+                  <div className="welcome-label">Yes, let's do it!</div>
+                  <div className="welcome-desc">I want a personal pick</div>
                 </div>
               </button>
 
-              <button className="welcome-btn skip" onClick={handleSkip}>
+              <button
+                className="welcome-btn skip"
+                onClick={() =>
+                  onComplete({ ...preferences, participated: false })
+                }
+              >
                 <div className="welcome-icon">👋</div>
-                <div className="welcome-text">
-                  <span className="welcome-label">Maybe later</span>
-                  <span className="welcome-desc">Show me popular picks</span>
+                <div>
+                  <div className="welcome-label">Maybe later</div>
+                  <div className="welcome-desc">Show me popular picks</div>
                 </div>
               </button>
             </div>
           </div>
         )}
 
+        {/* STEP 1 – 성별 + 연령대 */}
         {step === 1 && (
-          <div className="survey-content">
-            <h2 className="survey-title">
-              For spot-on picks,
-              <br />
-              give us 3 seconds
-              <br />
-              to tune your profile!
-            </h2>
+          <div className="survey-content step-one">
+            <h2 className="survey-title">성별, 연령대를 선택해주세요.</h2>
             <p className="survey-subtitle">
-              Set your birth year and gender to see what similar travelers love.
+              선택하신 정보를 기반으로
+              <br />
+              맞춤 여행지를 추천해드려요.
             </p>
 
-            <div className="survey-options">
-              <div className="birth-year-select">
-                <select
-                  value={preferences.birthYear}
-                  onChange={(e) => handleBirthYearSelect(e.target.value)}
-                  className="birth-year-dropdown"
+            <div className="gender-options">
+              {["male", "female"].map((g) => (
+                <button
+                  key={g}
+                  className={`gender-btn ${
+                    preferences.gender === g ? "selected" : ""
+                  }`}
+                  onClick={() => setPreferences({ ...preferences, gender: g })}
                 >
-                  <option value="">Select birth year</option>
-                  {BIRTH_YEARS.map((year) => (
-                    <option key={year} value={year}>
-                      {year}
-                    </option>
-                  ))}
-                </select>
-              </div>
+                  <div className="gender-icon">
+                    {g === "male" ? "👨" : "👩"}
+                  </div>
+                  <span>{g === "male" ? "남자" : "여자"}</span>
+                </button>
+              ))}
+            </div>
 
-              <div className="gender-options">
+            <div className="age-grid">
+              {AGE_RANGES.map((age) => (
                 <button
-                  className={`gender-btn ${
-                    preferences.gender === "female" ? "selected" : ""
+                  key={age}
+                  className={`age-btn ${
+                    preferences.ageRange === age ? "selected" : ""
                   }`}
-                  onClick={() => handleGenderSelect("female")}
+                  onClick={() =>
+                    setPreferences({ ...preferences, ageRange: age })
+                  }
                 >
-                  <div className="gender-icon">👩</div>
-                  <span>Female</span>
-                  {preferences.gender === "female" && (
-                    <span className="check-mark">✓</span>
-                  )}
+                  {age}
                 </button>
-                <button
-                  className={`gender-btn ${
-                    preferences.gender === "male" ? "selected" : ""
-                  }`}
-                  onClick={() => handleGenderSelect("male")}
-                >
-                  <div className="gender-icon">👨</div>
-                  <span>Male</span>
-                  {preferences.gender === "male" && (
-                    <span className="check-mark">✓</span>
-                  )}
-                </button>
-              </div>
+              ))}
             </div>
           </div>
         )}
 
+        {/* STEP 2 */}
         {step === 2 && (
           <div className="survey-content">
-            <h2 className="survey-title">
-              Which K-content
-              <br />
-              do you enjoy?
-            </h2>
-            <p className="survey-subtitle">
-              Choose your favorite genres (multiple selection welcome).
-            </p>
+            <h2 className="survey-title">Which K-content do you enjoy?</h2>
+            <p className="survey-subtitle">Choose your favorite genres.</p>
 
             <div className="survey-options genre-grid">
               {GENRES.map((genre) => (
@@ -273,29 +210,28 @@ export default function PreferencesSurvey({ onComplete }) {
                   className={`genre-btn ${
                     preferences.genres.includes(genre.id) ? "selected" : ""
                   }`}
-                  onClick={() => handleGenreToggle(genre.id)}
+                  onClick={() =>
+                    setPreferences({
+                      ...preferences,
+                      genres: preferences.genres.includes(genre.id)
+                        ? preferences.genres.filter((g) => g !== genre.id)
+                        : [...preferences.genres, genre.id],
+                    })
+                  }
                 >
                   <div className="genre-emoji">{genre.emoji}</div>
                   <span>{genre.label}</span>
-                  {preferences.genres.includes(genre.id) && (
-                    <span className="check-mark">✓</span>
-                  )}
                 </button>
               ))}
             </div>
           </div>
         )}
 
+        {/* STEP 3 */}
         {step === 3 && (
           <div className="survey-content">
-            <h2 className="survey-title">
-              What's your
-              <br />
-              travel style?
-            </h2>
-            <p className="survey-subtitle">
-              We'll match spots to your style (choose as many as you like).
-            </p>
+            <h2 className="survey-title">What's your travel style?</h2>
+            <p className="survey-subtitle">Choose as many as you like.</p>
 
             <div className="survey-options travel-grid">
               {TRAVEL_STYLES.map((style) => (
@@ -306,58 +242,33 @@ export default function PreferencesSurvey({ onComplete }) {
                       ? "selected"
                       : ""
                   }`}
-                  onClick={() => handleTravelStyleToggle(style.id)}
+                  onClick={() =>
+                    setPreferences({
+                      ...preferences,
+                      travelStyles: preferences.travelStyles.includes(style.id)
+                        ? preferences.travelStyles.filter((s) => s !== style.id)
+                        : [...preferences.travelStyles, style.id],
+                    })
+                  }
                 >
                   <div className="travel-emoji">{style.emoji}</div>
-                  <div className="travel-info">
-                    <span className="travel-label">{style.label}</span>
-                    <span className="travel-desc">{style.desc}</span>
+                  <div>
+                    <div className="travel-label">{style.label}</div>
+                    <div className="travel-desc">{style.desc}</div>
                   </div>
-                  {preferences.travelStyles.includes(style.id) && (
-                    <span className="check-mark">✓</span>
-                  )}
                 </button>
               ))}
             </div>
           </div>
         )}
 
+        {/* ❌ STEP 4 – 임시 주석 처리
         {step === 4 && (
           <div className="survey-content">
-            <h2 className="survey-title">
-              Lastly,
-              <br />
-              which K-content grabs you?
-            </h2>
-            <p className="survey-subtitle">
-              Pick one to see travel ideas linked to it.
-            </p>
-
-            <div className="survey-carousel-wrapper">
-              <KoreanCarousel
-                isPersonalized={false}
-                userPreferences={preferences}
-                variant="survey"
-                selectedContent={preferences.selectedContent}
-                onSelectContent={(video) =>
-                  setPreferences({
-                    ...preferences,
-                    selectedContent: video,
-                    skipContentSelection: false,
-                  })
-                }
-              />
-            </div>
-
-            <button
-              type="button"
-              className="survey-skip-content-btn"
-              onClick={handleSkipContentSelection}
-            >
-              No interesting content right now
-            </button>
+            ...
           </div>
         )}
+        */}
 
         {step > 0 && (
           <div className="survey-footer">
@@ -368,17 +279,10 @@ export default function PreferencesSurvey({ onComplete }) {
             )}
             <button
               className="survey-btn-next"
-              onClick={handleNext}
               disabled={!canProceed()}
+              onClick={handleNext}
             >
-              {step === 4 ? (
-                <>
-                  See my tailored picks
-                  <span className="btn-icon">🔍</span>
-                </>
-              ) : (
-                "Next"
-              )}
+              Next
             </button>
           </div>
         )}

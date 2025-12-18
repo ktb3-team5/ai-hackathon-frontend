@@ -187,7 +187,6 @@ export default function KoreanCarousel({
                   <div className="k-thumb-placeholder">K</div>
                 )}
               </div>
-              <h3 className="k-video-title">{video.title}</h3>
             </article>
           ))}
         </div>

@@ -73,6 +73,38 @@ export default function Canvas() {
         isVisible={isVisible}
       />
 
+      {/* HERO BANNER */}
+      <div className="canvas-hero">
+        <div className="search-pill">
+          <div className="pill-item">
+            <span className="pill-icon">📍</span>
+            <span>Where are you going?</span>
+          </div>
+          <div className="pill-divider" />
+
+          <div className="pill-item">
+            <span className="pill-icon">📅</span>
+            <span>When are you going?</span>
+          </div>
+          <div className="pill-divider" />
+
+          <div className="pill-item">
+            <span className="pill-icon">👥</span>
+            <span>2 adults</span>
+          </div>
+          <div className="pill-divider" />
+
+          <div className="pill-item">
+            <span className="pill-icon">⚙️</span>
+            <span>Filters</span>
+          </div>
+
+          <button className="pill-go-btn">Go</button>
+        </div>
+
+        <p className="canvas-caption">Leisure is a state of mind</p>
+      </div>
+
       {/* <SearchPill /> */}
     </section>
   );
