@@ -1,75 +1,59 @@
-# ============================================
-# ai-hackathon-frontend CI/CD Pipeline
-# React + Vite + Nginx + EC2
-# ============================================
-#
-# 📌 필수 GitHub Secrets:
-#   - EC2_HOST      : 프론트엔드 EC2 퍼블릭 IP
-#   - EC2_USER      : ubuntu
-#   - EC2_SSH_KEY   : .pem 파일 내용 전체
-#   - BACKEND_IP    : 백엔드 EC2 IP (API 프록시용)
-# ============================================
-
-name: Frontend CI/CD
+name: Deploy to S3 + CloudFront
 
 on:
   push:
-    branches: [feat/cicd]
+    branches:
+      - main  # main 브랜치에 push할 때마다 자동 배포
+  workflow_dispatch:  # GitHub에서 수동 실행 가능
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-      - name: Deploy to EC2
-        uses: appleboy/ssh-action@v1.0.3
-        env:
-          BACKEND_IP: ${{ secrets.BACKEND_IP }}
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ${{ secrets.EC2_USER }}
-          key: ${{ secrets.EC2_SSH_KEY }}
-          envs: BACKEND_IP
-          script: |
-            set -e
+          node-version: '20'
+          cache: 'npm'
 
-            echo "===== 1. 프로젝트 클론/업데이트 ====="
-            APP_DIR="/home/ubuntu/ai-hackathon-frontend"
-            REPO_URL="https://github.com/ktb3-team5/ai-hackathon-frontend.git"
-            BRANCH="feat/cicd"
+      - name: 📦 Install dependencies
+        run: npm ci
 
-            if [ ! -d "$APP_DIR" ]; then
-              git clone -b $BRANCH $REPO_URL $APP_DIR
-            fi
+      - name: 🔨 Build
+        run: npm run build
 
-            cd $APP_DIR
-            git fetch origin
-            git checkout $BRANCH
-            git reset --hard origin/$BRANCH
+      - name: ☁️ Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-            echo "===== 2. nginx.conf 백엔드 IP 설정 ====="
-            # BACKEND_IP 플레이스홀더를 실제 IP로 교체
-            sed -i "s/BACKEND_IP/$BACKEND_IP/g" nginx.conf
+      - name: 📤 Upload to S3
+        run: |
+          # 정적 파일 업로드 (1년 캐싱)
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }}/ \
+            --delete \
+            --cache-control "public, max-age=31536000, immutable" \
+            --exclude "*.html"
+          
+          # HTML 파일 업로드 (캐싱 안 함)
+          aws s3 sync dist/ s3://${{ secrets.S3_BUCKET_NAME }}/ \
+            --cache-control "no-cache, no-store, must-revalidate" \
+            --exclude "*" \
+            --include "*.html"
 
-            echo "===== 3. Docker 이미지 빌드 ====="
-            docker build -t frontend:latest .
+      - name: 🔄 Invalidate CloudFront cache
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+            --paths "/*"
 
-            echo "===== 4. 기존 컨테이너 정리 ====="
-            docker stop frontend || true
-            docker rm frontend || true
-
-            echo "===== 5. 새 컨테이너 실행 ====="
-            docker run -d \
-              --name frontend \
-              --restart unless-stopped \
-              -p 80:80 \
-              frontend:latest
-
-            echo "===== 6. nginx.conf 원복 (다음 배포를 위해) ====="
-            git checkout nginx.conf
-
-            echo "===== 7. 정리 ====="
-            docker image prune -af
-
-            echo "===== 배포 완료! ====="
-            docker ps | grep frontend
+      - name: ✅ Deployment complete
+        run: |
+          echo "🎉 Deployment successful!"
+          echo "🌐 URL: https://d131b2nh1pfz7l.cloudfront.net"
