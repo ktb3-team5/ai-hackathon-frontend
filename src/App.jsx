@@ -7,11 +7,14 @@ import KoreanCarousel from "./components/KoreanCarousel";
 import PreferencesSurvey from "./components/PreferencesSurvey";
 import TravelRecommendPage from "./components/TravelRecommendPage";
 import WorkationSection from "./components/WorkationSection";
+import TimeSlip from "./components/TimeSlip";
 
 export default function App() {
   const [showSurvey, setShowSurvey] = useState(true);
   const [userPreferences, setUserPreferences] = useState(null);
   const [showTravelPage, setShowTravelPage] = useState(false);
+  const [showTimeSlip, setShowTimeSlip] = useState(false);
+  const [selectedMediaId, setSelectedMediaId] = useState(null);
 
   const handleSurveyComplete = (preferences) => {
     setUserPreferences(preferences);
@@ -33,8 +36,11 @@ export default function App() {
       <div>
         <TravelRecommendPage
           userPreferences={userPreferences}
+          selectedMediaId={selectedMediaId}
           onBack={() => setShowTravelPage(false)}
+          onOpenTimeSlip={() => setShowTimeSlip(true)}
         />
+        {showTimeSlip && <TimeSlip onClose={() => setShowTimeSlip(false)} />}
       </div>
     );
   }
@@ -51,7 +57,10 @@ export default function App() {
           setShowTravelPage(true);
         }} 
       />*/}
-      <WorkationSection onSelectImage={() => setShowTravelPage(true)} />
+      <WorkationSection onSelectImage={(mediaId) => {
+        setSelectedMediaId(mediaId);
+        setShowTravelPage(true);
+      }} />
     </div>
   );
 }

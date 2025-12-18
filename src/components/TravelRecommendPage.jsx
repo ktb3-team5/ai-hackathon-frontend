@@ -1,8 +1,12 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import "../styles/TravelRecommendPage.css";
 import { RESTAURANT_DATA } from "../data/restaurants";
+import { api } from "../services/api";
 
-export default function TravelRecommendPage({ userPreferences, onBack }) {
+export default function TravelRecommendPage({ userPreferences, selectedMediaId, onBack, onOpenTimeSlip }) {
+  const [destinations, setDestinations] = useState([]);
+  const [loading, setLoading] = useState(true);
+
   // Travel and restaurant recommendations for Black & White Chef fans
   const allRestaurants = [...RESTAURANT_DATA.백수저, ...RESTAURANT_DATA.흑수저];
 
@@ -16,6 +20,26 @@ export default function TravelRecommendPage({ userPreferences, onBack }) {
 
   /** 🔥 reveal 대상 refs */
   const revealRefs = useRef([]);
+
+  useEffect(() => {
+    // 선택한 미디어의 여행지 추천 가져오기
+    const fetchDestinations = async () => {
+      if (!selectedMediaId) {
+        setLoading(false);
+        return;
+      }
+      try {
+        setLoading(true);
+        const data = await api.getTop3Destinations(selectedMediaId);
+        setDestinations(data);
+      } catch (error) {
+        console.error('Failed to fetch destinations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchDestinations();
+  }, [selectedMediaId]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
@@ -88,6 +112,43 @@ export default function TravelRecommendPage({ userPreferences, onBack }) {
           by K-content.
         </p>
       </header>
+
+      {/* 0. 추천 여행지 TOP 3 (백엔드에서 가져온 데이터) */}
+      {destinations.length > 0 && (
+        <section className="travel-section">
+          <h2 className="section-title">Top 3 Recommended Destinations</h2>
+          <p className="section-subtitle">
+            Personalized travel spots based on your preferences.
+          </p>
+
+          <div className="card-row">
+            {destinations.map((destination, idx) => (
+              <article
+                key={idx}
+                className={`restaurant-card reveal delay-${(idx % 4) + 1}`}
+                ref={(el) => revealRefs.current.push(el)}
+              >
+                <div className="restaurant-card-header">
+                  <span className="restaurant-chip">RECOMMENDED</span>
+                </div>
+
+                <p className="restaurant-name">{destination.name}</p>
+                <p className="restaurant-location">{destination.address}</p>
+                {destination.description && (
+                  <p className="restaurant-desc">{destination.description}</p>
+                )}
+
+                <button
+                  className="restaurant-map-btn"
+                  onClick={() => openGoogleMap(destination.name, destination.address)}
+                >
+                  🗺️ Open in Google Maps
+                </button>
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* 1. 방송 속 맛집 TOP 5 */}
       <section className="travel-section">
@@ -286,6 +347,29 @@ export default function TravelRecommendPage({ userPreferences, onBack }) {
           </div>
         </div>
       </section>
+
+      {/* Floating Time Slip Button */}
+      {onOpenTimeSlip && (
+        <button
+          onClick={onOpenTimeSlip}
+          className="floating-timeslip-btn"
+          aria-label="Open Time Slip"
+        >
+          <div className="floating-btn-character">
+            <div className="character-body">
+              <div className="character-head">
+                <div className="character-eyes">
+                  <span className="eye">•</span>
+                  <span className="eye">•</span>
+                </div>
+                <div className="character-smile">⌣</div>
+              </div>
+              <div className="character-camera">📸</div>
+            </div>
+          </div>
+          <span className="floating-btn-text">Time Slip!</span>
+        </button>
+      )}
     </section>
   );
 }

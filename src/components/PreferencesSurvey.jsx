@@ -1,6 +1,7 @@
 import { useState } from "react";
 import "../styles/PreferencesSurvey.css";
 import KoreanCarousel from "./KoreanCarousel";
+import { api } from "../services/api";
 
 const GENRES = [
   { id: "drama", label: "Drama", emoji: "🎭" },
@@ -64,9 +65,31 @@ export default function PreferencesSurvey({ onComplete }) {
     skipContentSelection: false,
   });
 
-  const handleNext = () => {
-    if (step < 3) setStep(step + 1);
-    else onComplete(preferences);
+  const handleNext = async () => {
+    if (step < 3) {
+      setStep(step + 1);
+    } else {
+      // 설문 완료 시 백엔드에 데이터 전송
+      try {
+        // 1. 사용자 생성
+        await api.createUser();
+
+        // 2. 사용자 태그(선호도) 생성
+        const tags = {
+          gender: preferences.gender,
+          ageGroup: preferences.ageRange,
+          genre: preferences.genres.join(','), // 배열을 쉼표로 구분된 문자열로 변환
+          travelStyle: preferences.travelStyles.join(','),
+        };
+        await api.createUserTags(tags);
+
+        onComplete(preferences);
+      } catch (error) {
+        console.error('Failed to save preferences:', error);
+        // 에러가 발생해도 사용자 경험을 위해 계속 진행
+        onComplete(preferences);
+      }
+    }
   };
 
   const handleBack = () => {

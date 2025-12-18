@@ -1,5 +1,6 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import "../styles/WorkationSection.css";
+import { api } from "../services/api";
 
 const IMAGES = [
   "/images/top1.png",
@@ -20,12 +21,29 @@ const IMAGES = [
 export default function WorkationSection({ onSelectImage, onSearch }) {
   const [keyword, setKeyword] = useState("");
   const [isDragging, setIsDragging] = useState(false);
+  const [mediaList, setMediaList] = useState([]);
   const marqueeRef = useRef(null);
   const dragState = useRef({ startX: 0, scrollLeft: 0 });
   const isPointerDown = useRef(false);
   const hasDragged = useRef(false);
-  const handleClick = () => {
-    if (onSelectImage) onSelectImage();
+
+  useEffect(() => {
+    // 컴포넌트 마운트 시 미디어 TOP 10 가져오기
+    const fetchMedia = async () => {
+      try {
+        const data = await api.getTop10Media();
+        setMediaList(data);
+      } catch (error) {
+        console.error('Failed to fetch media:', error);
+      }
+    };
+    fetchMedia();
+  }, []);
+
+  const handleClick = (mediaId) => {
+    if (onSelectImage && !hasDragged.current) {
+      onSelectImage(mediaId);
+    }
   };
 
   const handleSearch = (e) => {
@@ -102,17 +120,22 @@ export default function WorkationSection({ onSelectImage, onSearch }) {
         onMouseLeave={handleMouseUp}
       >
         <div className="image-track scrollable">
-          {[...IMAGES, ...IMAGES].map((src, idx) => (
-            <button
-              type="button"
-              className="image-item"
-              key={idx}
-              onClick={handleClick}
-              aria-label="Open travel recommendation"
-            >
-              <img src={src} alt="" draggable={false} />
-            </button>
-          ))}
+          {(mediaList.length > 0 ? [...mediaList, ...mediaList] : [...IMAGES, ...IMAGES]).map((item, idx) => {
+            const src = item.posterUrl || item;
+            const mediaId = item.id;
+            const title = item.title || '';
+            return (
+              <button
+                type="button"
+                className="image-item"
+                key={idx}
+                onClick={() => handleClick(mediaId)}
+                aria-label={`Open travel recommendation for ${title}`}
+              >
+                <img src={src} alt={title} draggable={false} />
+              </button>
+            );
+          })}
         </div>
       </div>
     </section>
